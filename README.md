@@ -10,6 +10,8 @@ Materiały do nauki podstaw Haskella oraz interaktywne quizy do wykładów 1–3
 
 ## Quizy
 
+[Uruchom quiz online](https://cinek477.github.io/Prog-Funk/) — bez pobierania plików, także na telefonie.
+
 Po pobraniu repozytorium otwórz `Notatki/quizy/index.html` w przeglądarce. Quiz działa lokalnie bez internetu; nie wymaga instalacji zależności. Podgląd pliku HTML w serwisie GitHub pokazuje kod źródłowy, więc plik należy najpierw pobrać.
 
 Baza zawiera 337 pytań, tryb nauki i kartkówki, filtrowanie tematów oraz powtórki błędnych odpowiedzi.
@@ -24,3 +26,4 @@ runghc Notatki/w3/Przyklady.hs
 ```
 
 Notatki są opracowaniem edukacyjnym z dodatkowymi objaśnieniami i ćwiczeniami. Fragmenty w rozdziałach są niezależnymi przykładami; nie wszystkie należy łączyć w jeden moduł.
+
