@@ -1,0 +1,17 @@
+# Lokalne ustawienia i pliki robocze
+.vscode/
+tmp/
+Notatki/quizy/backup/
+Notatki/quizy/verification-types*.txt
+Notatki/quizy/rozszerz-baze.cjs
+Notatki/quizy/dodaj-w3.cjs
+
+# Wyniki kompilacji Haskella
+*.hi
+*.o
+*.dyn_hi
+*.dyn_o
+*.exe
+.ghc.environment.*
+dist-newstyle/
+.stack-work/
