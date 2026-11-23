@@ -1,5 +1,6 @@
 """Build the offline HTML handbook from the repository's Markdown notes."""
 from html import escape
+from hashlib import sha256
 from pathlib import Path
 import re
 import os
@@ -7,6 +8,7 @@ import os
 root = Path(__file__).resolve().parents[1]
 notes = root / 'Notatki'
 material = notes / 'materialy'
+style_version = sha256((notes / 'study.css').read_bytes().replace(b'\r\n', b'\n')).hexdigest()[:10]
 catalog = [
     ('w1', 'Podstawy Haskella', 'Czyste funkcje, składnia, typy i pierwsze kroki w GHCi.'),
     ('w2', 'Listy i rekurencja', 'Aplikacja częściowa, leniwość, praca z listami i akumulatory.'),
@@ -42,10 +44,10 @@ def shell(out, title, body, active):
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{escape(title)} · Haskell</title>
 <link rel="icon" type="image/svg+xml" href="{logo}">
-<link rel="stylesheet" href="{href(out, notes / 'study.css')}">
+<link rel="stylesheet" href="{href(out, notes / 'study.css')}?v={style_version}">
 <script src="{href(out, notes / 'theme.js')}" defer></script></head>
 <body><header class="mast"><div class="mast-inner">
-<a href="{href(out, root / 'index.html')}" class="brand"><img src="{logo}" width="38" height="38" alt="">Haskell / Kurs</a>
+<a href="{href(out, root / 'index.html')}" class="brand"><img src="{logo}" width="34" height="34" alt=""><span>Haskell / Kurs</span></a>
 <nav class="site-nav" aria-label="Nawigacja główna">{nav}
 <button id="theme" type="button" hidden></button></nav>
 </div></header><main class="page">{body}</main></body></html>
@@ -199,3 +201,10 @@ for folder, title, _ in catalog:
         body = f'<div class="reader"><nav class="book-nav" aria-label="Rozdziały">{side}</nav><article class="paper"><p class="eyebrow">{escape(context)}</p><h1>{escape(titles[source])}</h1>{render(source,out)}<footer class="links paper-foot">{" ".join(nav)}</footer></article></div>'
         write(out, shell(out, titles[source], body, 'Materiały'))
 print(f'Generated {sum(map(len,groups.values()))} chapters and 2 indexes.')
+
+# The quiz keeps its own HTML and question bank; only sync the shared style URL.
+quiz = notes / 'quizy' / 'index.html'
+quiz_html = quiz.read_text(encoding='utf-8-sig')
+updated = re.sub(r'(href="../study\.css)(?:\?v=[^"]*)?"', rf'\g<1>?v={style_version}"', quiz_html, count=1)
+if updated != quiz_html:
+    write(quiz, updated)
