@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="pl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Drzewa, instancje i granice modułów · Haskell</title>
+<link rel="stylesheet" href="../../study.css">
+<script src="../../theme.js" defer></script></head>
+<body><header class="mast"><div class="mast-inner">
+<a href="../../../index.html" class="brand">Haskell / Kurs</a>
+<nav class="site-nav" aria-label="Nawigacja główna"><a href="../index.html" aria-current="page">Materiały</a> <a href="../../quizy/index.html">Quizy</a>
+<button id="theme" type="button" hidden></button></nav>
+</div></header><main class="page"><div class="reader"><nav class="book-nav" aria-label="Rozdziały"><a href="../index.html">Spis wszystkich wykładów</a><h2>Typy algebraiczne</h2><ul class="chapters"><li><a href="README.html">Wprowadzenie</a></li><li><a href="01-myslenie-typami.html">Jak zaprojektować typ danych</a></li><li><a href="02-drzewa-i-interfejsy.html" aria-current="page">Drzewa, instancje i granice modułów</a></li></ul></nav><article class="paper"><p class="eyebrow">Wykład 4 · Typy algebraiczne</p><h1>Drzewa, instancje i granice modułów</h1><h2>Ręcznie prześledź wstawianie do BST</h2>
+<p>Wstaw kolejno 5, 2 i 7. Najpierw nie ma korzenia, więc tworzysz węzeł 5. Potem 2 jest mniejsze od 5, więc zastępujesz puste lewe poddrzewo nowym węzłem. Wartość 7 trafia po prawej. Drugi raz wstawione 2 niczego nie zmienia w wersji ignorującej duplikaty.</p>
+<pre><code>       5
+      / \
+     2   7</code></pre>
+<p><code>size</code> musi zajrzeć w obie strony. Wyszukiwanie w poprawnym BST wybiera jedną gałąź; to nie znaczy zawsze logarytmicznie. Niezrównoważone drzewo, np. po wstawianiu uporządkowanych danych, może przypominać listę.</p>
+<pre><code>data Tree a = Empty | Node (Tree a) a (Tree a)
+
+member :: Ord a =&gt; a -&gt; Tree a -&gt; Bool
+member _ Empty = False
+member x (Node l y r) = case compare x y of
+  LT -&gt; member x l
+  EQ -&gt; True
+  GT -&gt; member x r
+
+inorder :: Tree a -&gt; [a]
+inorder t = go t []
+  where
+    go Empty acc = acc
+    go (Node l x r) acc = go l (x : go r acc)</code></pre>
+<p>Przejście <code>inorder</code> czyta lewe poddrzewo, korzeń, a potem prawe. Nie wymaga <code>Ord</code>: nie porównuje wartości. Dla poprawnego BST otrzymasz listę uporządkowaną. Dwa różne drzewa mogą mieć identyczne przejście; automatyczne <code>Eq</code> nadal porówna także ich strukturę.</p>
+<h2>Domyślna instancja czy własne porównanie?</h2>
+<pre><code>data Shape = Circle Double | Rect Double Double
+  deriving (Show, Eq, Ord)
+
+area :: Shape -&gt; Double
+area (Circle r) = pi*r*r
+area (Rect w h) = w*h</code></pre>
+<p><code>Circle 100 &lt; Rect 1 1</code> daje <code>True</code>, bo w automatycznym <code>Ord</code> pozycja konstruktora jest ważniejsza od pól. Jeśli w zadaniu chodzi o pole powierzchni, porównuj <code>area x</code> i <code>area y</code>, albo użyj <code>sortOn area</code> z <code>Data.List</code>. Nie zmieniaj znaczenia całej instancji tylko dla jednego sortowania.</p>
+<h2>Typ abstrakcyjny: przeprojektuj reprezentację bez zmiany użytkowników</h2>
+<p>Jeśli moduł eksportuje <code>Stack</code>, ale nie <code>Stack(..)</code>, kod wywołujący opiera się na sygnaturach <code>empty</code>, <code>push</code> i <code>pop</code>. Może wykonać <code>pop (push 7 empty)</code>, ale nie może tworzyć wartości przez <code>Stack [7]</code>. Implementację można potem zmienić, o ile zachowasz publiczne typy i zachowanie.</p>
+<p>Podobnie dla BST: eksportuj typ, twórcę pustego drzewa i bezpieczne operacje. Ukrycie <code>Node</code> sprawia, że użytkownik modułu nie stworzy dowolnego nieuporządkowanego węzła za pomocą tego konstruktora. To konkretna korzyść z modułu, nie tylko porządek w plikach.</p>
+<h2>Połącz to w zadaniu</h2>
+<ol start="1">
+<li>Zapisz konstruktor dla wyrażenia zmiany znaku: <code>Neg Expr</code>. Dopisz jego przypadek w <code>eval</code>: <code>eval (Neg e) = negate (eval e)</code>.</li>
+<li>Czy samo <code>deriving Show</code> pozwala porównać wyrażenia przez <code>==</code>? Nie, potrzeba instancji <code>Eq</code>.</li>
+<li>Czy <code>member</code> zachowa się poprawnie dla dowolnego drzewa? Nie. Odrzucenie połowy kandydatów opiera się na niezmienniku BST.</li>
+</ol><footer class="links paper-foot"><a href="01-myslenie-typami.html">Poprzedni rozdział</a> <a href="../../quizy/index.html?wyklad=4">Quiz z wykładu 4</a></footer></article></div></main></body></html>

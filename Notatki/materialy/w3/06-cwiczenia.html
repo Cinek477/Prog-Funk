@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="pl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>6. Ćwiczenia — najpierw samodzielnie, potem sprawdź · Haskell</title>
+<link rel="stylesheet" href="../../study.css">
+<script src="../../theme.js" defer></script></head>
+<body><header class="mast"><div class="mast-inner">
+<a href="../../../index.html" class="brand">Haskell / Kurs</a>
+<nav class="site-nav" aria-label="Nawigacja główna"><a href="../index.html" aria-current="page">Materiały</a> <a href="../../quizy/index.html">Quizy</a>
+<button id="theme" type="button" hidden></button></nav>
+</div></header><main class="page"><div class="reader"><nav class="book-nav" aria-label="Rozdziały"><a href="../index.html">Spis wszystkich wykładów</a><h2>Funkcje wyższego rzędu</h2><ul class="chapters"><li><a href="README.html">Wprowadzenie</a></li><li><a href="01-funkcje-wyzszego-rzedu.html">Funkcje wyższego rzędu, lambdy i domknięcia</a></li><li><a href="02-skladanie-i-aplikacja.html">Składanie funkcji oraz operatory . i $</a></li><li><a href="03-przetwarzanie-list.html">map, filter, zipWith, unzip i concat</a></li><li><a href="04-foldy.html">Foldy — foldr, foldl, foldl&#x27; i wersje bez wartości początkowej</a></li><li><a href="05-pipeline.html">Collection Pipeline — proces z małych funkcji</a></li><li><a href="06-cwiczenia.html" aria-current="page">Ćwiczenia — najpierw samodzielnie, potem sprawdź</a></li><li><a href="07-sciaga.html">Ściąga — wykład 3</a></li></ul></nav><article class="paper"><p class="eyebrow">Wykład 3 · Funkcje wyższego rzędu</p><h1>6. Ćwiczenia — najpierw samodzielnie, potem sprawdź</h1><p><a href="README.html">Spis wykładu 3</a></p>
+<h2>A. Przewidź wynik</h2>
+<ol start="1">
+<li><code>map (+1) (filter even [1..6])</code></li>
+<li><code>filter even (map (+1) [1..6])</code></li>
+<li><code>map ($ 3) [(+1),(*2),(^2)]</code></li>
+<li><code>foldr (-) 0 [2,3,4]</code></li>
+<li><code>foldl (-) 0 [2,3,4]</code></li>
+<li><code>foldr (:) [9] [1,2]</code></li>
+<li><code>foldl (\acc x -&gt; x:acc) [] [1,2,3]</code></li>
+<li><code>foldr (\x acc -&gt; acc ++ [x]) [] [1,2,3]</code></li>
+<li><code>zipWith (-) [8,7,6] [1,2]</code></li>
+<li><code>unzip (zip [1,2,3] &quot;ab&quot;)</code></li>
+<li><code>concat [[[1],[2]],[[3]]]</code></li>
+<li><code>sum . map (^2) . filter odd $ [1..5]</code></li>
+<li><code>foldr (&amp;&amp;) True [False,undefined]</code></li>
+<li><code>const 5 $! [undefined]</code></li>
+<li>Co stanie się dla <code>foldr1 (++) []</code>?</li>
+</ol>
+<h2>B. Typy</h2>
+<p>Podaj typ dla list, jeśli wyrażenie dotyczy przetwarzania list. Pamiętaj, że GHCi może pokazać ogólniejszy typ z <code>Foldable</code>.</p>
+<ol start="16">
+<li><code>map even</code></li>
+<li><code>filter even</code></li>
+<li><code>map length</code> dla wejściowej listy list</li>
+<li><code>sum . map (^2)</code> dla list</li>
+<li><code>zipWith (==)</code></li>
+<li><code>foldr (:) []</code></li>
+<li><code>foldl (\acc _ -&gt; acc+1) (0 :: Int)</code> dla list</li>
+<li><code>df f h</code>, jeżeli <code>df :: (Double -&gt; Double) -&gt; Double -&gt; Double -&gt; Double</code></li>
+</ol>
+<h2>C. Uzupełnij kod</h2>
+<ol start="24">
+<li>Suma wartości bezwzględnych:</li>
+</ol>
+<pre><code>sumAbs = sumWith _____</code></pre>
+<ol start="25">
+<li>Własne <code>map</code> przez <code>foldr</code>:</li>
+</ol>
+<pre><code>mapOwn f = foldr (\x acc -&gt; _____) _____</code></pre>
+<ol start="26">
+<li>Iloczyn przez fold:</li>
+</ol>
+<pre><code>productOwn = foldr _____ _____</code></pre>
+<ol start="27">
+<li>Wybór par z większą pierwszą współrzędną:</li>
+</ol>
+<pre><code>selectPairs = filter (\(x,y) -&gt; _____)</code></pre>
+<ol start="28">
+<li>Suma iloczynów odpowiadających elementów:</li>
+</ol>
+<pre><code>dot xs ys = sum (zipWith _____ xs ys)</code></pre>
+<ol start="29">
+<li>Normalizacja słów z tekstu:</li>
+</ol>
+<pre><code>formatNames = _____ . map capitalize . filter (\w -&gt; length w &gt; 1) . _____</code></pre>
+<ol start="30">
+<li>Dlaczego zastąpienie <code>unwords</code> przez <code>foldr1</code> może zmienić zachowanie dla pustego tekstu?</li>
+</ol>
+<hr>
+<details><summary>Rozwiązania A</summary>
+<ol start="1">
+<li><code>[3,5,7]</code>: wybierz parzyste, potem zwiększ.</li>
+<li><code>[2,4,6]</code>: najpierw zwiększ, dopiero potem wybierz.</li>
+<li><code>[4,6,9]</code>: każda funkcja dostaje argument 3.</li>
+<li><code>2-(3-(4-0)) = 3</code>.</li>
+<li><code>((0-2)-3)-4 = -9</code>.</li>
+<li><code>[1,2,9]</code>: bazowa lista jest końcem wyniku.</li>
+<li><code>[3,2,1]</code>: kolejne elementy trafiają na początek akumulatora.</li>
+<li><code>[3,2,1]</code>: wynik ten sam, ale ta wersja przez <code>++</code> jest kwadratowa.</li>
+<li><code>[7,5]</code>: wynik kończy się z krótszą listą.</li>
+<li><code>([1,2],&quot;ab&quot;)</code>: trzecia liczba została utracona przez <code>zip</code>.</li>
+<li><code>[[1],[2],[3]]</code>: usuwamy jedną warstwę.</li>
+<li><code>35</code>: 1²+3²+5².</li>
+<li><code>False</code>: nie trzeba obliczać ogona po pierwszym False.</li>
+<li><code>5</code>: lista jest już w WHNF, element nie jest wymuszany.</li>
+<li>Błąd: <code>foldr1</code> nie obsługuje pustej listy.</li>
+</ol>
+</details>
+<details><summary>Rozwiązania B</summary>
+<ol start="16">
+<li><code>Integral a =&gt; [a] -&gt; [Bool]</code>.</li>
+<li><code>Integral a =&gt; [a] -&gt; [a]</code>.</li>
+<li><code>[[a]] -&gt; [Int]</code>.</li>
+<li><code>Num a =&gt; [a] -&gt; a</code>.</li>
+<li><code>Eq a =&gt; [a] -&gt; [a] -&gt; [Bool]</code>.</li>
+<li><code>[a] -&gt; [a]</code>.</li>
+<li><code>[a] -&gt; Int</code>: wartości elementów nie są używane.</li>
+<li><code>Double -&gt; Double</code>: zostały podane f i h, brakuje x.</li>
+</ol>
+</details>
+<details><summary>Rozwiązania C</summary>
+<ol start="24">
+<li><code>abs</code> lub <code>\x -&gt; abs x</code>.</li>
+<li><code>f x : acc</code> oraz <code>[]</code>.</li>
+<li><code>(*)</code> oraz <code>1</code>.</li>
+<li><code>x &gt; y</code>.</li>
+<li><code>(*)</code>.</li>
+<li><code>unwords</code> oraz <code>words</code>.</li>
+<li><code>unwords []</code> daje pusty tekst, a <code>foldr1</code> zgłasza błąd. Pusta lista może powstać także dla niepustego wejścia, gdy filtr usunie wszystkie słowa.</li>
+</ol>
+</details>
+<h2>Zadanie przekrojowe</h2>
+<p>Napisz funkcję, która z tekstu wybiera słowa dłuższe niż 2 znaki i zwraca sumę ich długości. Zapisz wersję z argumentem i wersję przez złożenie.</p>
+<pre><code>totalLongLength :: String -&gt; Int
+totalLongLength s = sum (map length (filter (\w -&gt; length w &gt; 2) (words s)))
+
+-- alternatywnie:
+totalLongLength = sum . map length . filter (\w -&gt; length w &gt; 2) . words
+-- totalLongLength &quot;a kot pies i dom&quot; = 10</code></pre><footer class="links paper-foot"><a href="05-pipeline.html">Poprzedni rozdział</a> <a href="../../quizy/index.html?wyklad=3">Quiz z wykładu 3</a> <a href="07-sciaga.html">Następny rozdział</a></footer></article></div></main></body></html>

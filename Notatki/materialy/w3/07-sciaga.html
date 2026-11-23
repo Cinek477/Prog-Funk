@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="pl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>7. Ściąga — wykład 3 · Haskell</title>
+<link rel="stylesheet" href="../../study.css">
+<script src="../../theme.js" defer></script></head>
+<body><header class="mast"><div class="mast-inner">
+<a href="../../../index.html" class="brand">Haskell / Kurs</a>
+<nav class="site-nav" aria-label="Nawigacja główna"><a href="../index.html" aria-current="page">Materiały</a> <a href="../../quizy/index.html">Quizy</a>
+<button id="theme" type="button" hidden></button></nav>
+</div></header><main class="page"><div class="reader"><nav class="book-nav" aria-label="Rozdziały"><a href="../index.html">Spis wszystkich wykładów</a><h2>Funkcje wyższego rzędu</h2><ul class="chapters"><li><a href="README.html">Wprowadzenie</a></li><li><a href="01-funkcje-wyzszego-rzedu.html">Funkcje wyższego rzędu, lambdy i domknięcia</a></li><li><a href="02-skladanie-i-aplikacja.html">Składanie funkcji oraz operatory . i $</a></li><li><a href="03-przetwarzanie-list.html">map, filter, zipWith, unzip i concat</a></li><li><a href="04-foldy.html">Foldy — foldr, foldl, foldl&#x27; i wersje bez wartości początkowej</a></li><li><a href="05-pipeline.html">Collection Pipeline — proces z małych funkcji</a></li><li><a href="06-cwiczenia.html">Ćwiczenia — najpierw samodzielnie, potem sprawdź</a></li><li><a href="07-sciaga.html" aria-current="page">Ściąga — wykład 3</a></li></ul></nav><article class="paper"><p class="eyebrow">Wykład 3 · Funkcje wyższego rzędu</p><h1>7. Ściąga — wykład 3</h1><p><a href="README.html">Spis wykładu 3</a></p>
+<h2>Typy dla list</h2>
+<pre><code>map     :: (a -&gt; b) -&gt; [a] -&gt; [b]
+filter  :: (a -&gt; Bool) -&gt; [a] -&gt; [a]
+foldr   :: (a -&gt; b -&gt; b) -&gt; b -&gt; [a] -&gt; b
+foldl   :: (b -&gt; a -&gt; b) -&gt; b -&gt; [a] -&gt; b
+zip     :: [a] -&gt; [b] -&gt; [(a,b)]
+unzip   :: [(a,b)] -&gt; ([a],[b])
+zipWith :: (a -&gt; b -&gt; c) -&gt; [a] -&gt; [b] -&gt; [c]
+concat  :: [[a]] -&gt; [a]
+(.)     :: (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+($)     :: (a -&gt; b) -&gt; a -&gt; b</code></pre>
+<h2>Równania do zapamiętania</h2>
+<pre><code>(f . g) x = f (g x)
+f $ x = f x
+foldr f z [a,b,c] = f a (f b (f c z))
+foldl f z [a,b,c] = f (f (f z a) b) c</code></pre>
+<h2>Szybkie przykłady</h2>
+<div class="table-wrap"><table><thead><tr><th scope="col">Cel</th><th scope="col">Zapis</th></tr></thead><tbody>
+<tr><td>Kwadraty</td><td><code>map (^2)</code></td></tr>
+<tr><td>Parzyste</td><td><code>filter even</code></td></tr>
+<tr><td>Suma kwadratów</td><td><code>sum . map (^2)</code></td></tr>
+<tr><td>Suma kwadratów dodatnich</td><td><code>sum . map (^2) . filter (&gt;0)</code></td></tr>
+<tr><td>Długości słów</td><td><code>map length . words</code></td></tr>
+<tr><td>Spłaszczenie</td><td><code>concat</code></td></tr>
+<tr><td>Suma par elementów</td><td><code>zipWith (+)</code></td></tr>
+<tr><td>Iloczyn listy</td><td><code>foldr (*) 1</code></td></tr>
+<tr><td>Długość przez fold</td><td><code>foldr (\_ acc -&gt; 1+acc) 0</code></td></tr>
+<tr><td>Odwrócenie przez akumulator</td><td><code>foldl (\acc x -&gt; x:acc) []</code></td></tr>
+<tr><td>Zastosuj funkcje do 2</td><td><code>map ($2)</code></td></tr>
+</tbody></table></div>
+<h2>Pułapki</h2>
+<ul>
+<li><code>map even</code> daje Bool dla każdego elementu; <code>filter even</code> zachowuje liczby.</li>
+<li><code>f . g</code> to funkcja; <code>f $ x</code> to jej zastosowanie do argumentu.</li>
+<li>W <code>foldr</code> krok dostaje element i wynik ogona; w <code>foldl</code> akumulator i element.</li>
+<li>Kierunek folda ma znaczenie przy odejmowaniu, dzieleniu i budowaniu struktur.</li>
+<li><code>foldr1</code> i <code>foldl1</code> nie obsługują <code>[]</code>.</li>
+<li><code>foldl&#x27;</code> i <code>$!</code> wymuszają do WHNF, nie w głąb całej struktury.</li>
+<li><code>foldr</code> czasem działa z listą nieskończoną, ale nie dla każdej funkcji kroku.</li>
+<li><code>zip</code> i <code>zipWith</code> obcinają wynik do krótszej listy.</li>
+<li><code>concat</code> usuwa jedną warstwę list, nie wszystkie naraz.</li>
+<li>Nazwy <code>sum</code>, <code>map</code> i <code>filter</code> istnieją w Prelude. Przy pisaniu własnych wersji użyj np. końcówki <code>Own</code>, aby uniknąć konfliktów.</li>
+<li>Składanie czytaj od prawej do lewej i sprawdzaj typ na każdej granicy.</li>
+</ul>
+<h2>Słownik krótkich odpowiedzi</h2>
+<p><strong>Funkcja wyższego rzędu:</strong> przyjmuje lub zwraca funkcję.</p>
+<p><strong>Lambda:</strong> anonimowa funkcja, np. <code>\x -&gt; x+1</code>.</p>
+<p><strong>Domknięcie:</strong> funkcja wraz z dostępem do środowiska, np. zachowanego kroku h.</p>
+<p><strong>Predykat:</strong> funkcja zwracająca Bool.</p>
+<p><strong>Fold:</strong> opis rekurencyjnego składania przez funkcję kroku i przypadek bazowy.</p>
+<p><strong>Pipeline:</strong> proces z kolejnych przekształceń kolekcji.</p>
+<p><strong>DRY:</strong> wspólny schemat zapisujemy raz, a zmienne zachowanie przekazujemy jako parametr.</p><footer class="links paper-foot"><a href="06-cwiczenia.html">Poprzedni rozdział</a> <a href="../../quizy/index.html?wyklad=3">Quiz z wykładu 3</a></footer></article></div></main></body></html>

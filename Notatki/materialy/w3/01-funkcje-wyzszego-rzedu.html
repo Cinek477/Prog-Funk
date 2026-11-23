@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="pl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>1. Funkcje wyższego rzędu, lambdy i domknięcia · Haskell</title>
+<link rel="stylesheet" href="../../study.css">
+<script src="../../theme.js" defer></script></head>
+<body><header class="mast"><div class="mast-inner">
+<a href="../../../index.html" class="brand">Haskell / Kurs</a>
+<nav class="site-nav" aria-label="Nawigacja główna"><a href="../index.html" aria-current="page">Materiały</a> <a href="../../quizy/index.html">Quizy</a>
+<button id="theme" type="button" hidden></button></nav>
+</div></header><main class="page"><div class="reader"><nav class="book-nav" aria-label="Rozdziały"><a href="../index.html">Spis wszystkich wykładów</a><h2>Funkcje wyższego rzędu</h2><ul class="chapters"><li><a href="README.html">Wprowadzenie</a></li><li><a href="01-funkcje-wyzszego-rzedu.html" aria-current="page">Funkcje wyższego rzędu, lambdy i domknięcia</a></li><li><a href="02-skladanie-i-aplikacja.html">Składanie funkcji oraz operatory . i $</a></li><li><a href="03-przetwarzanie-list.html">map, filter, zipWith, unzip i concat</a></li><li><a href="04-foldy.html">Foldy — foldr, foldl, foldl&#x27; i wersje bez wartości początkowej</a></li><li><a href="05-pipeline.html">Collection Pipeline — proces z małych funkcji</a></li><li><a href="06-cwiczenia.html">Ćwiczenia — najpierw samodzielnie, potem sprawdź</a></li><li><a href="07-sciaga.html">Ściąga — wykład 3</a></li></ul></nav><article class="paper"><p class="eyebrow">Wykład 3 · Funkcje wyższego rzędu</p><h1>1. Funkcje wyższego rzędu, lambdy i domknięcia</h1><p><a href="README.html">Spis wykładu 3</a> · Slajdy 4–7</p>
+<h2>Problem: podobne funkcje i reguła DRY</h2>
+<p>Funkcje sumujące elementy, ich kwadraty, sześciany lub wartości bezwzględne różnią się tylko tym, co robimy z pojedynczym elementem. Kopiowanie całego schematu rekurencji utrudnia poprawki.</p>
+<p><strong>DRY — Don&#x27;t Repeat Yourself:</strong> wydziel wspólny schemat, a różnice przekaż jako parametr.</p>
+<pre><code>sumWith :: Num a =&gt; (a -&gt; a) -&gt; [a] -&gt; a
+sumWith _ [] = 0
+sumWith f (x:xs) = f x + sumWith f xs</code></pre>
+<p>Jak czytać typ:</p>
+<ol start="1">
+<li><code>(a -&gt; a)</code> — pierwszy argument jest funkcją przekształcającą jeden element.</li>
+<li><code>[a]</code> — drugi argument jest listą.</li>
+<li><code>a</code> — wynikiem jest liczba.</li>
+<li><code>Num a</code> — potrzebujemy dodawania i zera.</li>
+</ol>
+<p>Nawiasy wokół <code>(a -&gt; a)</code> są kluczowe. Bez nich <code>a -&gt; a -&gt; [a] -&gt; a</code> opisywałoby inne argumenty.</p>
+<pre><code>sumWith id [1,2,3]    -- 6
+sumWith (^2) [1,2,3]  -- 14
+sumWith (^3) [1,2,3]  -- 36
+sumWith abs [-2,3,-4] -- 9</code></pre>
+<p><code>id x = x</code>. Operator <code>(^2)</code> jest sekcją, która podnosi argument do kwadratu.</p>
+<p>Rozwinięcie:</p>
+<pre><code>sumWith (^2) [2,3]
+= 2^2 + sumWith (^2) [3]
+= 4 + (3^2 + sumWith (^2) [])
+= 4 + (9 + 0)
+= 13</code></pre>
+<p><strong>Funkcja wyższego rzędu</strong> przyjmuje funkcję jako argument lub zwraca funkcję. <code>sumWith</code>, <code>map</code> i <code>filter</code> to przykłady. Funkcje mogą być wartościami: przekazujemy <code>abs</code>, a nie koniecznie wynik <code>abs x</code>.</p>
+<h2>Funkcje anonimowe, czyli lambdy</h2>
+<pre><code>\x -&gt; x*x
+\x y -&gt; x+y
+\(x,y) -&gt; x+y</code></pre>
+<p>Backslash <code>\</code> rozpoczyna funkcję, a <code>-&gt;</code> oddziela argumenty od ciała. Druga lambda przyjmuje argumenty kolejno; trzecia jedną parę.</p>
+<pre><code>(\x y -&gt; x+y) 1 2 -- 3
+(\(x,y) -&gt; x+y) (1,2) -- 3</code></pre>
+<p>Równoważne sposoby zapisania tej samej transformacji:</p>
+<pre><code>square x = x^2
+-- funkcja anonimowa: \x -&gt; x^2
+-- sekcja: (^2)</code></pre>
+<p>Użyj nazwy, gdy funkcja jest dłuższa lub wielokrotnie używana. Krótka lambda jest wygodna przy pojedynczym użyciu. Nie każdą funkcję można sensownie zastąpić sekcją.</p>
+<h2>Funkcja jako wynik: przybliżona pochodna</h2>
+<pre><code>df :: (Double -&gt; Double) -&gt; Double -&gt; (Double -&gt; Double)
+df f h = \x -&gt; (f (x+h) - f (x-h)) / (2*h)</code></pre>
+<p><code>df</code> przyjmuje funkcję <code>f</code>, krok <code>h</code> i zwraca funkcję zmiennej <code>x</code>. To centralny iloraz różnicowy, czyli przybliżenie pochodnej.</p>
+<pre><code>dSquare :: Double -&gt; Double
+dSquare = df (\x -&gt; x*x) 1e-5
+-- dSquare 3 jest bliskie 6, niekoniecznie dokładnie 6</code></pre>
+<p>Wymagamy <code>h /= 0</code>. Zbyt mały krok nie musi poprawić wyniku: odejmowanie bliskich liczb zmiennoprzecinkowych może zwiększyć błąd. <code>Double</code> jest reprezentacją przybliżoną.</p>
+<p><strong>Domknięcie = funkcja wraz ze środowiskiem</strong>, z którego korzysta. Zwrócona lambda pamięta dostęp do <code>f</code> i <code>h</code>, choć po lewej stronie jej definicji widzimy tylko <code>x</code>.</p>
+<p>Prostszy przykład:</p>
+<pre><code>makeAdder :: Int -&gt; (Int -&gt; Int)
+makeAdder n = \x -&gt; n+x
+-- makeAdder 5 zwraca funkcję dodającą 5</code></pre>
+<h2>Ile argumentów już podano?</h2>
+<pre><code>absErr :: Num a =&gt; (t -&gt; a) -&gt; (t -&gt; a) -&gt; t -&gt; a
+absErr exact approximate x = abs (exact x - approximate x)</code></pre>
+<p>To błąd bezwzględny dwóch wyników obliczonych dla tego samego <code>x</code>.</p>
+<pre><code>absErr (\x -&gt; 2*x) (df (\x -&gt; x*x) 1e-5)
+-- :: Double -&gt; Double</code></pre>
+<p>Podano dwie funkcje. Brakuje punktu <code>x</code>, więc wynikiem jest funkcja. Użycie jej w <code>map</code> dostarczy kolejne punkty:</p>
+<pre><code>map (absErr (\x -&gt; 2*x) dSquare) [0,0.5,1]</code></pre>
+<p>Częściowa aplikacja nie jest funkcją częściową: pierwsza oznacza niepodanie wszystkich argumentów, druga brak poprawnego wyniku dla niektórych wejść.</p><footer class="links paper-foot"><a href="README.html">Poprzedni rozdział</a> <a href="../../quizy/index.html?wyklad=3">Quiz z wykładu 3</a> <a href="02-skladanie-i-aplikacja.html">Następny rozdział</a></footer></article></div></main></body></html>

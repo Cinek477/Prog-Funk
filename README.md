@@ -8,11 +8,11 @@ Materiały do nauki podstaw Haskella oraz interaktywne quizy do wykładów 1–4
 - [Wykład 3](Notatki/w3/README.md)
 - [Instrukcja quizów](Notatki/quizy/README.md)
 
-[Materiały do nauki online](https://cinek477.github.io/Prog-Funk/Notatki/materialy/index.html) — powtórki z wykładów 1–4, przykłady i zadania z odsłanianymi odpowiedziami.
+[Materiały do nauki online](https://cinek477.github.io/Prog-Funk/Notatki/materialy/index.html) — pełne rozdziały z wykładów 1–4, przykłady i zadania z odsłanianymi odpowiedziami.
 
 ## Quizy
 
-[Uruchom quiz online](https://cinek477.github.io/Prog-Funk/) — bez pobierania plików, także na telefonie.
+[Uruchom quiz online](https://cinek477.github.io/Prog-Funk/Notatki/quizy/index.html) — bez pobierania plików, także na telefonie.
 
 Po pobraniu repozytorium otwórz `Notatki/quizy/index.html` w przeglądarce. Quiz działa lokalnie bez internetu; nie wymaga instalacji zależności. Podgląd pliku HTML w serwisie GitHub pokazuje kod źródłowy, więc plik należy najpierw pobrać.
 
@@ -29,3 +29,5 @@ runghc Notatki/w3/Przyklady.hs
 
 Notatki są opracowaniem edukacyjnym z dodatkowymi objaśnieniami i ćwiczeniami. Fragmenty w rozdziałach są niezależnymi przykładami; nie wszystkie należy łączyć w jeden moduł.
 
+
+Po zmianie źródłowych notatek Markdown przebuduj podręcznik poleceniem "python scripts/build-study.py".

@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="pl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>1. Funkcje wielu argumentów · Haskell</title>
+<link rel="stylesheet" href="../../study.css">
+<script src="../../theme.js" defer></script></head>
+<body><header class="mast"><div class="mast-inner">
+<a href="../../../index.html" class="brand">Haskell / Kurs</a>
+<nav class="site-nav" aria-label="Nawigacja główna"><a href="../index.html" aria-current="page">Materiały</a> <a href="../../quizy/index.html">Quizy</a>
+<button id="theme" type="button" hidden></button></nav>
+</div></header><main class="page"><div class="reader"><nav class="book-nav" aria-label="Rozdziały"><a href="../index.html">Spis wszystkich wykładów</a><h2>Listy i rekurencja</h2><ul class="chapters"><li><a href="README.html">Wprowadzenie</a></li><li><a href="01-funkcje.html" aria-current="page">Funkcje wielu argumentów</a></li><li><a href="02-listy.html">Listy</a></li><li><a href="03-leniwosc.html">Leniwe wartościowanie</a></li><li><a href="04-rekurencja.html">Rekurencja</a></li><li><a href="05-pytania-i-cwiczenia.html">Pytania i ćwiczenia</a></li></ul></nav><article class="paper"><p class="eyebrow">Wykład 2 · Listy i rekurencja</p><h1>1. Funkcje wielu argumentów</h1><h2>Krotka a argumenty podawane kolejno</h2>
+<pre><code>addPair :: Num a =&gt; (a, a) -&gt; a
+addPair (x, y) = x + y
+
+add :: Num a =&gt; a -&gt; a -&gt; a
+add x y = x + y</code></pre>
+<p><code>addPair (1,2)</code> i <code>add 1 2</code> dają <code>3</code>. <code>add (1,2)</code> oraz <code>addPair 1 2</code> nie pasują do tych definicji. Para jest jedną wartością; dwa sposoby zapisu wymagają różnych typów.</p>
+<p>Strzałki łączą się w prawo: <code>a -&gt; a -&gt; a</code> oznacza <code>a -&gt; (a -&gt; a)</code>. Funkcja otrzymuje pierwszy argument i zwraca funkcję oczekującą na drugi. To <strong>currying</strong>. Aplikacja łączy się w lewo: <code>add 1 2</code> to <code>(add 1) 2</code>.</p>
+<h2>Aplikacja częściowa</h2>
+<pre><code>addOne :: Num a =&gt; a -&gt; a
+addOne = add 1
+-- addOne 5 = 6
+
+pair :: a -&gt; b -&gt; (a,b)
+pair x y = (x,y)
+-- pair &#x27;a&#x27; :: b -&gt; (Char,b)
+
+combine :: Num a =&gt; a -&gt; a -&gt; a -&gt; a
+combine x y z = x * y + z
+-- combine 1 2 :: Num a =&gt; a -&gt; a</code></pre>
+<p>Podanie argumentu konsumuje jedną strzałkę typu i może ustalić część zmiennych typu.</p>
+<p><strong>Aplikacja częściowa</strong> to podanie części argumentów. <strong>Funkcja częściowa</strong> to funkcja, która dla niektórych argumentów nie daje poprawnego wyniku, np. <code>head []</code>. Te pojęcia są niezależne.</p>
+<h2>Sekcje operatorów</h2>
+<p>Sekcja ustala jeden argument operatora:</p>
+<div class="table-wrap"><table><thead><tr><th scope="col">Sekcja</th><th scope="col">Odpowiednik</th><th scope="col">Przykład</th></tr></thead><tbody>
+<tr><td><code>(+ 3)</code></td><td><code>\x -&gt; x + 3</code></td><td><code>(+ 3) 4 == 7</code></td></tr>
+<tr><td><code>(3 +)</code></td><td><code>\x -&gt; 3 + x</code></td><td><code>(3 +) 4 == 7</code></td></tr>
+<tr><td><code>(^ 2)</code></td><td><code>\x -&gt; x ^ 2</code></td><td><code>(^ 2) 10 == 100</code></td></tr>
+<tr><td><code>(2 ^)</code></td><td><code>\n -&gt; 2 ^ n</code></td><td><code>(2 ^) 10 == 1024</code></td></tr>
+<tr><td>`<code>(</code>div<code> 2)</code>`</td><td>`<code>\x -&gt; x </code>div<code> 2</code>`</td><td>wynik dla <code>7</code>: <code>3</code></td></tr>
+<tr><td><code>(&gt; 0)</code></td><td><code>\x -&gt; x &gt; 0</code></td><td>wynik dla <code>5</code>: <code>True</code></td></tr>
+<tr><td><code>(++ &quot;!&quot;)</code></td><td><code>\s -&gt; s ++ &quot;!&quot;</code></td><td>wynik dla <code>&quot;Hej&quot;</code>: <code>&quot;Hej!&quot;</code></td></tr>
+</tbody></table></div>
+<p><code>(^ 2) :: Num a =&gt; a -&gt; a</code>, natomiast <code>(2 ^) :: (Num a, Integral b) =&gt; b -&gt; a</code>. W drugim przypadku argument jest wykładnikiem całkowitym.</p>
+<p><strong>Wyjątek składniowy:</strong> <code>(- 5)</code> to ujemna liczba, a nie funkcja odejmująca 5.</p>
+<pre><code>subtract 5 12 -- 7: od drugiego argumentu odejmij pierwszy
+(5 -) 12     -- -7: od pięciu odejmij argument
+-- funkcja odejmująca 5:
+-- \x -&gt; x - 5</code></pre>
+<h2>curry, uncurry, flip</h2>
+<p>To istniejące funkcje biblioteczne; poniżej ich typy i przykłady użycia:</p>
+<pre><code>curry   :: ((a,b) -&gt; c) -&gt; a -&gt; b -&gt; c
+uncurry :: (a -&gt; b -&gt; c) -&gt; (a,b) -&gt; c
+flip    :: (a -&gt; b -&gt; c) -&gt; b -&gt; a -&gt; c</code></pre>
+<ul>
+<li><code>curry</code> zmienia funkcję na parze w funkcję z kolejnymi argumentami: <code>curry addPair 1 2</code> daje <code>3</code>.</li>
+<li><code>uncurry</code> wykonuje zmianę odwrotną: <code>uncurry add (1,2)</code> daje <code>3</code>.</li>
+<li><code>flip</code> zamienia kolejność dwóch pierwszych argumentów: <code>flip (-) 3 10</code> daje <code>7</code>.</li>
+</ul>
+<p><code>flip (^) 2 10</code> daje <code>10 ^ 2</code>, czyli <code>100</code>.</p>
+<h2>Sygnatury i ograniczenie monomorfizmu</h2>
+<pre><code>toPower5 :: Num a =&gt; a -&gt; a
+toPower5 = (^ 5)</code></pre>
+<p>Definicje bez jawnych parametrów po lewej stronie, zawierające przeciążone operacje, mogą podlegać <strong>ograniczeniu monomorfizmu</strong>. Bez sygnatury typ takiego wiązania może zostać zawężony przez domyślny wybór typu liczbowego. Zachowanie zależy też od ustawień; GHCi i moduł mogą mieć inne ustawienia. Nie oznacza to, że każda definicja bez parametrów jest monomorficzna. Jawna sygnatura wyraża zamierzoną ogólność.</p>
+<p>Nazwy zwykłych funkcji zaczynaj małą literą: <code>myFun x = 2 * x</code>. Wielka litera oznacza m.in. konstruktor danych, więc <code>MyFun x = ...</code> nie definiuje zwykłej funkcji.</p><footer class="links paper-foot"><a href="README.html">Poprzedni rozdział</a> <a href="../../quizy/index.html?wyklad=2">Quiz z wykładu 2</a> <a href="02-listy.html">Następny rozdział</a></footer></article></div></main></body></html>

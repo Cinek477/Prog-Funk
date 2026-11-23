@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="pl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>5. Collection Pipeline — proces z małych funkcji · Haskell</title>
+<link rel="stylesheet" href="../../study.css">
+<script src="../../theme.js" defer></script></head>
+<body><header class="mast"><div class="mast-inner">
+<a href="../../../index.html" class="brand">Haskell / Kurs</a>
+<nav class="site-nav" aria-label="Nawigacja główna"><a href="../index.html" aria-current="page">Materiały</a> <a href="../../quizy/index.html">Quizy</a>
+<button id="theme" type="button" hidden></button></nav>
+</div></header><main class="page"><div class="reader"><nav class="book-nav" aria-label="Rozdziały"><a href="../index.html">Spis wszystkich wykładów</a><h2>Funkcje wyższego rzędu</h2><ul class="chapters"><li><a href="README.html">Wprowadzenie</a></li><li><a href="01-funkcje-wyzszego-rzedu.html">Funkcje wyższego rzędu, lambdy i domknięcia</a></li><li><a href="02-skladanie-i-aplikacja.html">Składanie funkcji oraz operatory . i $</a></li><li><a href="03-przetwarzanie-list.html">map, filter, zipWith, unzip i concat</a></li><li><a href="04-foldy.html">Foldy — foldr, foldl, foldl&#x27; i wersje bez wartości początkowej</a></li><li><a href="05-pipeline.html" aria-current="page">Collection Pipeline — proces z małych funkcji</a></li><li><a href="06-cwiczenia.html">Ćwiczenia — najpierw samodzielnie, potem sprawdź</a></li><li><a href="07-sciaga.html">Ściąga — wykład 3</a></li></ul></nav><article class="paper"><p class="eyebrow">Wykład 3 · Funkcje wyższego rzędu</p><h1>5. Collection Pipeline — proces z małych funkcji</h1><p><a href="README.html">Spis wykładu 3</a> · Slajd 16</p>
+<h2>Zadanie z wykładu</h2>
+<p>Z tekstu z imionami usuń jednoliterowe słowa, a pozostałe zapisz z wielkiej litery, oddzielone pojedynczymi spacjami.</p>
+<pre><code>tomasz t bogdan anna Jerzy j maria
+→ Tomasz Bogdan Anna Jerzy Maria</code></pre>
+<p><strong>Collection Pipeline</strong> to sekwencja przekształceń: wynik jednego etapu jest wejściem następnego. Rozdzielenie etapów ułatwia sprawdzanie typów i znajdowanie błędów.</p>
+<h2>Etap 1: podział tekstu na słowa</h2>
+<pre><code>words &quot;tomasz t bogdan&quot;
+-- [&quot;tomasz&quot;,&quot;t&quot;,&quot;bogdan&quot;]
+-- words :: String -&gt; [String]</code></pre>
+<p><code>words</code> rozpoznaje białe znaki, więc wielokrotne spacje i przejścia wiersza nie tworzą pustych słów. Nie jest parserem interpunkcji: np. przecinek zostaje częścią słowa.</p>
+<h2>Etap 2: odrzucenie krótkich słów</h2>
+<pre><code>filter (\w -&gt; length w &gt; 1) [&quot;tomasz&quot;,&quot;t&quot;,&quot;bogdan&quot;]
+-- [&quot;tomasz&quot;,&quot;bogdan&quot;]</code></pre>
+<p>Predykat przyjmuje String i zwraca Bool. Cały filtr ma typ <code>[String] -&gt; [String]</code>.</p>
+<h2>Etap 3: normalizacja liter</h2>
+<pre><code>import Data.Char (toUpper, toLower)
+
+capitalize :: String -&gt; String
+capitalize [] = []
+capitalize (x:xs) = toUpper x : map toLower xs</code></pre>
+<pre><code>capitalize &quot;jERZY&quot; -- &quot;Jerzy&quot;
+map capitalize [&quot;tomasz&quot;,&quot;bogdan&quot;] -- [&quot;Tomasz&quot;,&quot;Bogdan&quot;]</code></pre>
+<p><code>toUpper</code> i <code>toLower</code> działają na pojedynczych znakach. <code>map toLower</code> działa na całym ogonie tekstu. To prosty formatter, nie pełny model pisowni wszystkich nazwisk i imion.</p>
+<h2>Etap 4: połączenie słów</h2>
+<p>Wersja ze slajdu:</p>
+<pre><code>foldr1 (\w rest -&gt; w ++ &quot; &quot; ++ rest) [&quot;Tomasz&quot;,&quot;Bogdan&quot;]
+-- &quot;Tomasz Bogdan&quot;</code></pre>
+<p><strong>Pułapka:</strong> po wejściu <code>&quot;a b c&quot;</code> filtr usunie wszystkie słowa, a <code>foldr1</code> dostanie <code>[]</code> i zgłosi błąd. Podobnie dla pustego tekstu.</p>
+<p>Bezpieczna operacja biblioteczna:</p>
+<pre><code>unwords [&quot;Tomasz&quot;,&quot;Bogdan&quot;] -- &quot;Tomasz Bogdan&quot;
+unwords [] -- &quot;&quot;
+-- unwords :: [String] -&gt; String</code></pre>
+<h2>Całość w trzech zapisach</h2>
+<p>Najpierw wersja z nazwami etapów:</p>
+<pre><code>formatNames :: String -&gt; String
+formatNames s =
+  let tokens = words s
+      longWords = filter (\w -&gt; length w &gt; 1) tokens
+      normalized = map capitalize longWords
+  in unwords normalized</code></pre>
+<p>Wersja z nawiasami:</p>
+<pre><code>formatNames s = unwords (map capitalize (filter (\w -&gt; length w &gt; 1) (words s)))</code></pre>
+<p>Wersja przez złożenie:</p>
+<pre><code>formatNames = unwords . map capitalize . filter (\w -&gt; length w &gt; 1) . words</code></pre>
+<p>To alternatywne definicje. W pliku wybierz jedną.</p>
+<h2>Kontrola typów etapów</h2>
+<pre><code>String
+  -- words --&gt; [String]
+  -- filter --&gt; [String]
+  -- map capitalize --&gt; [String]
+  -- unwords --&gt; String</code></pre>
+<p>Jeżeli pomylisz kolejność i użyjesz <code>words</code> na <code>[String]</code>, typy wykryją problem. Część błędów logicznych, np. wybieranie <code>length w &lt; 1</code>, nadal jest poprawna typowo — dlatego potrzebne są przykłady wejścia i oczekiwane wyniki.</p>
+<h2>Przykłady brzegowe</h2>
+<div class="table-wrap"><table><thead><tr><th scope="col">Wejście</th><th scope="col">Wynik poprawionej wersji</th></tr></thead><tbody>
+<tr><td><code>&quot;&quot;</code></td><td><code>&quot;&quot;</code></td></tr>
+<tr><td><code>&quot;a b c&quot;</code></td><td><code>&quot;&quot;</code></td></tr>
+<tr><td><code>&quot;  aNNA   bOGDAN &quot;</code></td><td><code>&quot;Anna Bogdan&quot;</code></td></tr>
+<tr><td><code>&quot;JAN&quot;</code></td><td><code>&quot;Jan&quot;</code></td></tr>
+</tbody></table></div>
+<h2>Kolejny pipeline: suma kwadratów dodatnich</h2>
+<pre><code>sumPositiveSquares :: [Int] -&gt; Int
+sumPositiveSquares = sum . map (^2) . filter (&gt;0)
+-- sumPositiveSquares [-2,0,3,4] = 25</code></pre>
+<p>Tutaj kolejność też ma znaczenie. Jeśli najpierw podniesiesz do kwadratu, liczby ujemne staną się dodatnie i mogą zostać zachowane przez filtr.</p><footer class="links paper-foot"><a href="04-foldy.html">Poprzedni rozdział</a> <a href="../../quizy/index.html?wyklad=3">Quiz z wykładu 3</a> <a href="06-cwiczenia.html">Następny rozdział</a></footer></article></div></main></body></html>

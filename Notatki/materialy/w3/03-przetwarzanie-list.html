@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="pl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>3. map, filter, zipWith, unzip i concat · Haskell</title>
+<link rel="stylesheet" href="../../study.css">
+<script src="../../theme.js" defer></script></head>
+<body><header class="mast"><div class="mast-inner">
+<a href="../../../index.html" class="brand">Haskell / Kurs</a>
+<nav class="site-nav" aria-label="Nawigacja główna"><a href="../index.html" aria-current="page">Materiały</a> <a href="../../quizy/index.html">Quizy</a>
+<button id="theme" type="button" hidden></button></nav>
+</div></header><main class="page"><div class="reader"><nav class="book-nav" aria-label="Rozdziały"><a href="../index.html">Spis wszystkich wykładów</a><h2>Funkcje wyższego rzędu</h2><ul class="chapters"><li><a href="README.html">Wprowadzenie</a></li><li><a href="01-funkcje-wyzszego-rzedu.html">Funkcje wyższego rzędu, lambdy i domknięcia</a></li><li><a href="02-skladanie-i-aplikacja.html">Składanie funkcji oraz operatory . i $</a></li><li><a href="03-przetwarzanie-list.html" aria-current="page">map, filter, zipWith, unzip i concat</a></li><li><a href="04-foldy.html">Foldy — foldr, foldl, foldl&#x27; i wersje bez wartości początkowej</a></li><li><a href="05-pipeline.html">Collection Pipeline — proces z małych funkcji</a></li><li><a href="06-cwiczenia.html">Ćwiczenia — najpierw samodzielnie, potem sprawdź</a></li><li><a href="07-sciaga.html">Ściąga — wykład 3</a></li></ul></nav><article class="paper"><p class="eyebrow">Wykład 3 · Funkcje wyższego rzędu</p><h1>3. map, filter, zipWith, unzip i concat</h1><p><a href="README.html">Spis wykładu 3</a> · Slajdy 10–11 i 14–15</p>
+<h2>Dobierz właściwy schemat</h2>
+<div class="table-wrap"><table><thead><tr><th scope="col">Potrzeba</th><th scope="col">Funkcja</th><th scope="col">Co się dzieje z elementami?</th></tr></thead><tbody>
+<tr><td>Zmień każdy element</td><td><code>map</code></td><td>każdy daje jeden nowy element</td></tr>
+<tr><td>Wybierz niektóre elementy</td><td><code>filter</code></td><td>zachowane elementy nie zmieniają typu</td></tr>
+<tr><td>Połącz odpowiadające elementy dwóch list</td><td><code>zipWith</code></td><td>po jednym elemencie z każdej listy</td></tr>
+<tr><td>Połącz w pary</td><td><code>zip</code></td><td>wynik to lista par</td></tr>
+<tr><td>Rozdziel pary na dwie listy</td><td><code>unzip</code></td><td>wynik to para list</td></tr>
+<tr><td>Usuń jedną warstwę list</td><td><code>concat</code></td><td>listy wewnętrzne zostają sklejone</td></tr>
+<tr><td>Zbierz listę w jeden wynik</td><td>fold</td><td>wynik może być liczbą, listą, Bool itd.</td></tr>
+</tbody></table></div>
+<h2>map — przekształcanie</h2>
+<pre><code>map :: (a -&gt; b) -&gt; [a] -&gt; [b]
+map _ [] = []
+map f (x:xs) = f x : map f xs</code></pre>
+<p>Pierwszy argument to funkcja jednego elementu. Może zmienić jego typ.</p>
+<pre><code>map (^2) [1..5]             -- [1,4,9,16,25]
+map even [1,2,3]           -- [False,True,False]
+map length [&quot;a&quot;,&quot;kot&quot;,&quot;&quot;] -- [1,3,0]
+map (\s -&gt; (s,length s)) [&quot;My&quot;,&quot;name&quot;,&quot;is&quot;]
+-- [(&quot;My&quot;,2),(&quot;name&quot;,4),(&quot;is&quot;,2)]</code></pre>
+<p>Dla skończonej listy pełnych wartości długość wyniku jest taka sama jak wejścia. Typy <code>a</code> i <code>b</code> mogą być różne, ale mogą też być takie same.</p>
+<p>Odpowiednik comprehension:</p>
+<pre><code>map f xs = [f x | x &lt;- xs]</code></pre>
+<h2>filter — wybór</h2>
+<pre><code>filter :: (a -&gt; Bool) -&gt; [a] -&gt; [a]
+filter _ [] = []
+filter p (x:xs)
+  | p x = x : filter p xs
+  | otherwise = filter p xs</code></pre>
+<p><code>p</code> jest predykatem: zwraca Bool dla pojedynczego elementu.</p>
+<pre><code>filter even [1..6]                    -- [2,4,6]
+filter (\x -&gt; x &gt; 1 &amp;&amp; x &lt; 5) [1..10] -- [2,3,4]
+filter (\s -&gt; length s == 2) [&quot;a&quot;,&quot;aa&quot;,&quot;bbb&quot;,&quot;bb&quot;]
+-- [&quot;aa&quot;,&quot;bb&quot;]
+filter (\(x,y) -&gt; x &gt; y) [(1,2),(2,2),(3,2)]
+-- [(3,2)]</code></pre>
+<p><code>filter even</code> nie zwraca listy Bool. Listę wyników predykatu daje <code>map even</code>.</p>
+<pre><code>filter p xs = [x | x &lt;- xs, p x]</code></pre>
+<p>Kolejność nie zmienia się. Filtr nie sortuje i nie usuwa automatycznie powtórzeń.</p>
+<h2>Kolejność map i filter ma znaczenie</h2>
+<pre><code>map (*2) (filter (&gt;2) [1..4]) -- [6,8]
+filter (&gt;2) (map (*2) [1..4]) -- [4,6,8]</code></pre>
+<p>W pierwszym przypadku warunek sprawdza oryginalne wartości, w drugim już podwojone. Nie wolno przestawiać etapów bez sprawdzenia znaczenia.</p>
+<h2>zipWith — dwie listy i funkcja</h2>
+<pre><code>zipWith :: (a -&gt; b -&gt; c) -&gt; [a] -&gt; [b] -&gt; [c]
+zipWith _ [] _ = []
+zipWith _ _ [] = []
+zipWith f (x:xs) (y:ys) = f x y : zipWith f xs ys</code></pre>
+<pre><code>zipWith (+) [1..5] [5,4..1] -- [6,6,6,6,6]
+zipWith (*) [1,2,3] [10,20] -- [10,40]
+zipWith (++) [&quot;A&quot;,&quot;B&quot;] [&quot;la&quot;,&quot;ar&quot;] -- [&quot;Ala&quot;,&quot;Bar&quot;]</code></pre>
+<p>Funkcja <code>f</code> przyjmuje dwa argumenty kolejno. <code>zipWith</code> kończy na krótszej liście. Nie tworzy wszystkich kombinacji par; to zadanie dla dwóch generatorów comprehension.</p>
+<h2>zip i unzip</h2>
+<pre><code>zip :: [a] -&gt; [b] -&gt; [(a,b)]
+unzip :: [(a,b)] -&gt; ([a],[b])</code></pre>
+<pre><code>zip [1,2,3] &quot;ab&quot; -- [(1,&#x27;a&#x27;),(2,&#x27;b&#x27;)]
+unzip [(1,&#x27;a&#x27;),(2,&#x27;b&#x27;)] -- ([1,2],&quot;ab&quot;)</code></pre>
+<p><strong>Pułapka:</strong> <code>unzip (zip xs ys)</code> nie zawsze odtwarza całe wejście. Jeżeli listy miały różne długości, nadmiar końcowych elementów został utracony.</p>
+<p>W drugą stronę, dla skończonej listy zwykłych par, <code>uncurry zip (unzip pairs)</code> odtwarza <code>pairs</code>.</p>
+<h2>concat — spłaszczenie o jedną warstwę</h2>
+<pre><code>concat :: [[a]] -&gt; [a]
+concat = foldr (++) []
+
+concat [[1,2],[],[3,4]] -- [1,2,3,4]
+concat [&quot;ab&quot;,&quot;cd&quot;] -- &quot;abcd&quot;
+concat [[[1],[2]],[[3]]] -- [[1],[2],[3]]
+(concat . concat) [[[1],[2]],[[3]]] -- [1,2,3]</code></pre>
+<p>Każde użycie usuwa dokładnie jedną warstwę list. Nie spłaszcza dowolnie głębokiej struktury.</p>
+<h2>Leniwość w tych operacjach</h2>
+<pre><code>take 3 (map (^2) [1..]) -- [1,4,9]
+take 3 (filter even [1..]) -- [2,4,6]</code></pre>
+<p>Można pracować na nieskończonych listach, jeśli potrzebny wynik powstaje po skończonej pracy. <code>head (filter (&lt;0) [1..])</code> nie znajduje wyniku. <code>concat (repeat [])</code> również nie wytworzy pierwszego elementu.</p><footer class="links paper-foot"><a href="02-skladanie-i-aplikacja.html">Poprzedni rozdział</a> <a href="../../quizy/index.html?wyklad=3">Quiz z wykładu 3</a> <a href="04-foldy.html">Następny rozdział</a></footer></article></div></main></body></html>

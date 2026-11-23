@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="pl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>2. Składnia i definicje · Haskell</title>
+<link rel="stylesheet" href="../../study.css">
+<script src="../../theme.js" defer></script></head>
+<body><header class="mast"><div class="mast-inner">
+<a href="../../../index.html" class="brand">Haskell / Kurs</a>
+<nav class="site-nav" aria-label="Nawigacja główna"><a href="../index.html" aria-current="page">Materiały</a> <a href="../../quizy/index.html">Quizy</a>
+<button id="theme" type="button" hidden></button></nav>
+</div></header><main class="page"><div class="reader"><nav class="book-nav" aria-label="Rozdziały"><a href="../index.html">Spis wszystkich wykładów</a><h2>Podstawy Haskella</h2><ul class="chapters"><li><a href="README.html">Wprowadzenie</a></li><li><a href="01-myslenie-funkcyjne.html">Myślenie funkcyjne</a></li><li><a href="02-skladnia-i-definicje.html" aria-current="page">Składnia i definicje</a></li><li><a href="03-typy.html">Typy</a></li><li><a href="05-praktyka-i-sciaga.html">Praca z kodem i ściąga</a></li></ul></nav><article class="paper"><p class="eyebrow">Wykład 1 · Podstawy Haskella</p><h1>2. Składnia i definicje</h1><h2>Definicja i wywołanie funkcji</h2>
+<pre><code>square :: Int -&gt; Int
+square x = x * x
+
+add :: Int -&gt; Int -&gt; Int
+add x y = x + y</code></pre>
+<p><code>::</code> czytamy „ma typ”. Linia z <code>=</code> podaje definicję. Małe litery rozpoczynają nazwy funkcji i wartości; wielkie litery rozpoczynają m.in. nazwy typów i konstruktorów, takich jak <code>Int</code> i <code>True</code>.</p>
+<pre><code>square 3         -- 9
+add 2 3          -- 5
+square (add 2 3) -- 25</code></pre>
+<p>Argumenty rozdziela się spacjami. <code>add (2,3)</code> przekazuje jedną krotkę i nie pasuje do powyższej definicji. Funkcja przyjmująca krotkę wygląda tak:</p>
+<pre><code>addPair :: (Int, Int) -&gt; Int
+addPair (x, y) = x + y</code></pre>
+<h2>Kolejność wiązania</h2>
+<p>Wywołanie funkcji wiąże mocniej niż operatory i łączy się w lewo:</p>
+<pre><code>square 2 + 3    -- (square 2) + 3 = 7
+square (2 + 3)  -- 25
+add 2 3        -- (add 2) 3</code></pre>
+<p>Iloczyn zapisuj jawnie: <code>f x * g y</code>. Spacja oznacza aplikację funkcji, nie mnożenie. Ujemny argument najczytelniej przekazać w nawiasie: <code>square (-3)</code>.</p>
+<h2>Operatory</h2>
+<div class="table-wrap"><table><thead><tr><th scope="col">Zapis</th><th scope="col">Znaczenie</th></tr></thead><tbody>
+<tr><td><code>+</code>, <code>-</code>, <code>*</code></td><td>dodawanie, odejmowanie, mnożenie</td></tr>
+<tr><td><code>/</code></td><td>dzielenie w typach obsługujących ułamki</td></tr>
+<tr><td><code>div</code>, <code>mod</code></td><td>dzielenie całkowite i reszta</td></tr>
+<tr><td><code>^</code></td><td>potęga o nieujemnym całkowitym wykładniku</td></tr>
+<tr><td><code>**</code></td><td>potęgowanie dla typów zmiennoprzecinkowych</td></tr>
+<tr><td><code>==</code>, <code>/=</code></td><td>równość i nierówność</td></tr>
+<tr><td><code>&lt;</code>, <code>&gt;</code>, <code>&lt;=</code>, <code>&gt;=</code></td><td>porównania</td></tr>
+<tr><td><code>&amp;&amp;</code>, <code>||</code>, <code>not</code></td><td>logiczne „i”, „lub”, negacja</td></tr>
+</tbody></table></div>
+<pre><code>7 `div` 2       -- 3
+7 `mod` 2       -- 1
+7 / 2           -- 3.5
+(+) 2 3         -- 5
+not (True &amp;&amp; False) -- True</code></pre>
+<p>Zwykłą funkcję można zapisać między argumentami w odwrotnych apostrofach: `<code>7 </code>mod<code> 2</code><code>. Operator w nawiasach staje się funkcją: </code>(+) 2 3`.</p>
+<h2>Warunki: if oraz guards</h2>
+<pre><code>absolute :: Int -&gt; Int
+absolute n = if n &gt;= 0 then n else -n</code></pre>
+<p>Przy kilku warunkach czytelne są <strong>strażniki (guards)</strong>:</p>
+<pre><code>sign :: Int -&gt; Int
+sign n
+  | n &lt; 0     = -1
+  | n == 0    = 0
+  | otherwise = 1</code></pre>
+<p>Warunki sprawdzane są od góry. <code>otherwise</code> jest nazwą wartości <code>True</code>. Przy pominięciu pasującej gałęzi funkcja może zakończyć się błędem podczas obliczania wyniku.</p>
+<h2>Dopasowanie wzorców</h2>
+<pre><code>myNot :: Bool -&gt; Bool
+myNot True  = False
+myNot False = True
+
+isAla :: String -&gt; Bool
+isAla &quot;Ala&quot; = True
+isAla _     = False</code></pre>
+<p>Wzorce rozpoznają postać danych. <code>_</code> pasuje do dowolnej wartości, ale nie nadaje jej nazwy. Pierwszy pasujący wzorzec wygrywa, więc ogólne przypadki umieszczaj na końcu.</p>
+<p><code>_</code> jest wzorcem, a <code>otherwise</code> wartością logiczną używaną w warunku — pełnią podobną rolę końcowego przypadku, ale mają inną składnię i znaczenie.</p>
+<p>To samo rozgałęzienie można zapisać jako wyrażenie <code>case</code>:</p>
+<pre><code>myNot b = case b of
+  True  -&gt; False
+  False -&gt; True</code></pre>
+<p>W <code>case</code> używa się <code>-&gt;</code>, a w równaniach funkcji <code>=</code>. Wzorzec <code>n &gt; 0</code> nie jest poprawny; do sprawdzenia nierówności służy guard lub <code>if</code>.</p>
+<h2>Definicje lokalne: where i let</h2>
+<pre><code>circleArea :: Double -&gt; Double
+circleArea r = pi * radiusSquared
+  where
+    radiusSquared = r * r</code></pre>
+<p><code>where</code> dołącza lokalne definicje do równania funkcji. Mogą one korzystać z jego argumentów.</p>
+<pre><code>circleArea r =
+  let radiusSquared = r * r
+  in pi * radiusSquared</code></pre>
+<p><code>let ... in ...</code> jest wyrażeniem, którego wartością jest wynik części po <code>in</code>. Można go użyć wewnątrz większego wyrażenia. Lokalna nazwa może przesłonić zewnętrzną:</p>
+<pre><code>factor = 10
+scaled x = x * factor
+  where
+    factor = 2
+-- scaled 3 = 6; zewnętrzne factor nadal wynosi 10</code></pre>
+<h2>Wcięcia i komentarze</h2>
+<p>Definicje najwyższego poziomu zaczynaj w tej samej kolumnie. Definicje w jednym bloku <code>where</code> lub <code>let</code> wyrównuj do siebie; podobnie alternatywy po <code>of</code>. Używaj spacji zamiast tabulatorów.</p>
+<pre><code>volume :: Double -&gt; Double
+volume r = coefficient * pi * r ^ 3
+  where
+    coefficient = 4 / 3
+
+-- Komentarz do końca linii
+{- Komentarz blokowy.
+   {- Może zawierać zagnieżdżony komentarz. -}
+-}</code></pre>
+<p>Wcięcia są częścią składni. Możliwe są też jawne bloki, np. <code>let { x = 2; y = 3 } in x + y</code>, ale na początku lepiej stosować zwykłe wcięcia.</p><footer class="links paper-foot"><a href="01-myslenie-funkcyjne.html">Poprzedni rozdział</a> <a href="../../quizy/index.html?wyklad=1">Quiz z wykładu 1</a> <a href="03-typy.html">Następny rozdział</a></footer></article></div></main></body></html>

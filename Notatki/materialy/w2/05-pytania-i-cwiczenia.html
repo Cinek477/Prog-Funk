@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="pl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>5. Pytania i ćwiczenia · Haskell</title>
+<link rel="stylesheet" href="../../study.css">
+<script src="../../theme.js" defer></script></head>
+<body><header class="mast"><div class="mast-inner">
+<a href="../../../index.html" class="brand">Haskell / Kurs</a>
+<nav class="site-nav" aria-label="Nawigacja główna"><a href="../index.html" aria-current="page">Materiały</a> <a href="../../quizy/index.html">Quizy</a>
+<button id="theme" type="button" hidden></button></nav>
+</div></header><main class="page"><div class="reader"><nav class="book-nav" aria-label="Rozdziały"><a href="../index.html">Spis wszystkich wykładów</a><h2>Listy i rekurencja</h2><ul class="chapters"><li><a href="README.html">Wprowadzenie</a></li><li><a href="01-funkcje.html">Funkcje wielu argumentów</a></li><li><a href="02-listy.html">Listy</a></li><li><a href="03-leniwosc.html">Leniwe wartościowanie</a></li><li><a href="04-rekurencja.html">Rekurencja</a></li><li><a href="05-pytania-i-cwiczenia.html" aria-current="page">Pytania i ćwiczenia</a></li></ul></nav><article class="paper"><p class="eyebrow">Wykład 2 · Listy i rekurencja</p><h1>5. Pytania i ćwiczenia</h1><h2>Krótkie odpowiedzi</h2>
+<div class="table-wrap"><table><thead><tr><th scope="col">Pytanie</th><th scope="col">Odpowiedź</th></tr></thead><tbody>
+<tr><td>Co oznacza <code>a -&gt; b -&gt; c</code>?</td><td><code>a -&gt; (b -&gt; c)</code>: funkcja zwracająca kolejną funkcję.</td></tr>
+<tr><td>Czym jest aplikacja częściowa?</td><td>Podaniem części argumentów i otrzymaniem funkcji na pozostałe.</td></tr>
+<tr><td>Czym jest sekcja?</td><td>Częściową aplikacją operatora z ustaleniem jednego argumentu.</td></tr>
+<tr><td>Czy <code>(- 5)</code> odejmuje 5?</td><td>Nie, oznacza ujemną liczbę; użyj <code>subtract 5</code> lub lambdy.</td></tr>
+<tr><td>Jak jest zbudowana lista?</td><td>Jest pusta <code>[]</code> albo ma postać <code>x:xs</code>.</td></tr>
+<tr><td>Dlaczego indeksowanie listy kosztuje?</td><td>Trzeba przejść od początku do wskazanego ogniwa.</td></tr>
+<tr><td>Co to thunk?</td><td>Odłożone obliczenie wraz ze środowiskiem potrzebnym do jego wykonania.</td></tr>
+<tr><td>Co to nieścisłość?</td><td>Możliwość uzyskania wyniku bez obliczania niepotrzebnego argumentu.</td></tr>
+<tr><td>Co wymusza <code>seq</code>?</td><td>Pierwszy argument do WHNF, czyli zewnętrznej postaci.</td></tr>
+<tr><td>Dlaczego nieskończona lista bywa użyteczna?</td><td>Można obliczyć tylko potrzebny skończony fragment.</td></tr>
+<tr><td>Co to akumulator?</td><td>Argument przenoszący wynik dotychczasowych kroków.</td></tr>
+<tr><td>Co to rekurencja ogonowa?</td><td>Taka, w której wynik wywołania rekurencyjnego jest bezpośrednio wynikiem gałęzi.</td></tr>
+<tr><td>Czy ogonowa oznacza stałą pamięć?</td><td>Nie; mogą gromadzić się thunki, a rozmiar danych może rosnąć.</td></tr>
+<tr><td>Po co <code>!acc</code>?</td><td>Żeby wymuszać akumulator do WHNF i ograniczać odkładanie obliczeń.</td></tr>
+<tr><td>Dlaczego naiwne <code>fib</code> jest wolne?</td><td>Wielokrotnie rozwiązuje te same podproblemy.</td></tr>
+</tbody></table></div>
+<h2>Przewidź wynik lub błąd</h2>
+<ol start="1">
+<li><code>(^2) 5</code> oraz <code>(2^) 5</code>.</li>
+<li><code>subtract 5 12</code> oraz <code>(5-) 12</code>.</li>
+<li><code>zip [1,2,3] &quot;ab&quot;</code>.</li>
+<li><code>take 10 [1,2]</code> oraz <code>[1,2] !! 2</code>.</li>
+<li><code>[(x,y) | x &lt;- [1,2], y &lt;- [x..2]]</code>.</li>
+<li><code>take 3 [x | x &lt;- [1..], even x]</code>.</li>
+<li><code>length (takeWhile (&lt;5) [1..])</code>.</li>
+<li><code>length [x | x &lt;- [1..], x &lt; 5]</code>.</li>
+<li><code>seq (Just undefined) ()</code>.</li>
+<li>Dlaczego <code>reverseSlow</code> z poprzedniego rozdziału ma koszt kwadratowy?</li>
+</ol>
+<details><summary>Odpowiedzi</summary>
+<ol start="1">
+<li><code>25</code> i <code>32</code>: kwadrat argumentu kontra potęga dwójki.</li>
+<li><code>7</code> i <code>-7</code>: znaczenie zależy od kolejności argumentów.</li>
+<li><code>[(1,&#x27;a&#x27;),(2,&#x27;b&#x27;)]</code>: kończymy na krótszej liście.</li>
+<li><code>[1,2]</code> i błąd: ostatni poprawny indeks to <code>1</code>.</li>
+<li><code>[(1,1),(1,2),(2,2)]</code>.</li>
+<li><code>[2,4,6]</code>.</li>
+<li><code>4</code>: <code>takeWhile</code> ustala koniec po napotkaniu <code>5</code>.</li>
+<li>Nie kończy się: po czterech elementach nadal szuka następnych spełniających warunek.</li>
+<li><code>()</code>: zewnętrzny konstruktor <code>Just</code> jest znany; wnętrze nie jest wymuszane.</li>
+<li>Każde <code>++ [x]</code> przechodzi lewą listę; suma kosztów wynosi około <code>0 + 1 + ... + (n-1)</code>, czyli O(n²).</li>
+</ol>
+</details>
+<h2>Samodzielne definicje</h2>
+<p>A. Napisz funkcję <code>timesThree</code> przez sekcję i podaj jej typ.</p>
+<p>B. Napisz funkcję sprawdzającą, czy dwa pierwsze elementy listy są równe, bez błędu dla krótkiej listy.</p>
+<p>C. Napisz rekurencyjną funkcję liczącą elementy spełniające warunek.</p>
+<p>Przykładowe rozwiązania:</p>
+<pre><code>timesThree :: Num a =&gt; a -&gt; a
+timesThree = (*3)
+
+firstTwoEqual :: Eq a =&gt; [a] -&gt; Bool
+firstTwoEqual (x:y:_) = x == y
+firstTwoEqual _ = False
+
+countIf :: (a -&gt; Bool) -&gt; [a] -&gt; Int
+countIf _ [] = 0
+countIf p (x:xs)
+  | p x = 1 + countIf p xs
+  | otherwise = countIf p xs</code></pre>
+<p>Dla <code>countIf</code> ograniczenie <code>Eq a</code> ani <code>Num a</code> nie jest potrzebne: operacje na elementach opisuje przekazany predykat. Wynik ma konkretny typ <code>Int</code>.</p><footer class="links paper-foot"><a href="04-rekurencja.html">Poprzedni rozdział</a> <a href="../../quizy/index.html?wyklad=2">Quiz z wykładu 2</a></footer></article></div></main></body></html>

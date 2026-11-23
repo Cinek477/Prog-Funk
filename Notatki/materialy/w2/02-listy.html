@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="pl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>2. Listy · Haskell</title>
+<link rel="stylesheet" href="../../study.css">
+<script src="../../theme.js" defer></script></head>
+<body><header class="mast"><div class="mast-inner">
+<a href="../../../index.html" class="brand">Haskell / Kurs</a>
+<nav class="site-nav" aria-label="Nawigacja główna"><a href="../index.html" aria-current="page">Materiały</a> <a href="../../quizy/index.html">Quizy</a>
+<button id="theme" type="button" hidden></button></nav>
+</div></header><main class="page"><div class="reader"><nav class="book-nav" aria-label="Rozdziały"><a href="../index.html">Spis wszystkich wykładów</a><h2>Listy i rekurencja</h2><ul class="chapters"><li><a href="README.html">Wprowadzenie</a></li><li><a href="01-funkcje.html">Funkcje wielu argumentów</a></li><li><a href="02-listy.html" aria-current="page">Listy</a></li><li><a href="03-leniwosc.html">Leniwe wartościowanie</a></li><li><a href="04-rekurencja.html">Rekurencja</a></li><li><a href="05-pytania-i-cwiczenia.html">Pytania i ćwiczenia</a></li></ul></nav><article class="paper"><p class="eyebrow">Wykład 2 · Listy i rekurencja</p><h1>2. Listy</h1><h2>Budowa: pustka albo element i reszta</h2>
+<p>Lista <code>[a]</code> zawiera elementy jednego typu. Ma dwa konstruktory: <code>[]</code> oraz <code>(:)</code>.</p>
+<pre><code>[1,2,3] == 1 : (2 : (3 : []))
+-- (:) :: a -&gt; [a] -&gt; [a]</code></pre>
+<p>To lista jednokierunkowa. Pierwszy element jest dostępny bez przechodzenia poprzednich elementów; dotarcie do dalszego wymaga przejścia kolejnych ogniw.</p>
+<p>Schematyczny zapis ze slajdów należy rozumieć jako opis budowy. Poprawny przykład własnego analogicznego typu to:</p>
+<pre><code>data List a = Empty | Cons a (List a)</code></pre>
+<p>Nie redefiniuje on wbudowanej składni list.</p>
+<h2>Najważniejsze operacje</h2>
+<div class="table-wrap"><table><thead><tr><th scope="col">Wyrażenie</th><th scope="col">Wynik</th></tr></thead><tbody>
+<tr><td><code>head [1,2,3]</code></td><td><code>1</code></td></tr>
+<tr><td><code>tail [1,2,3]</code></td><td><code>[2,3]</code></td></tr>
+<tr><td><code>last [1,2,3]</code></td><td><code>3</code></td></tr>
+<tr><td><code>init [1,2,3]</code></td><td><code>[1,2]</code></td></tr>
+<tr><td><code>length [1,2,3]</code></td><td><code>3</code></td></tr>
+<tr><td><code>null []</code></td><td><code>True</code></td></tr>
+<tr><td><code>take 2 [1,2,3]</code></td><td><code>[1,2]</code></td></tr>
+<tr><td><code>drop 2 [1,2,3]</code></td><td><code>[3]</code></td></tr>
+<tr><td><code>splitAt 2 [1,2,3]</code></td><td><code>([1,2],[3])</code></td></tr>
+<tr><td><code>[1,2,3] !! 1</code></td><td><code>2</code> — indeksy od zera</td></tr>
+<tr><td><code>[1] ++ [2,3]</code></td><td><code>[1,2,3]</code></td></tr>
+<tr><td><code>reverse [1,2,3]</code></td><td><code>[3,2,1]</code></td></tr>
+<tr><td><code>elem 2 [1,2,3]</code></td><td><code>True</code></td></tr>
+<tr><td><code>sum [1,2,3]</code></td><td><code>6</code></td></tr>
+<tr><td><code>product [1,2,3]</code></td><td><code>6</code></td></tr>
+<tr><td><code>maximum [1,3,2]</code></td><td><code>3</code></td></tr>
+<tr><td><code>zip [1,2] &quot;ab&quot;</code></td><td><code>[(1,&#x27;a&#x27;),(2,&#x27;b&#x27;)]</code></td></tr>
+<tr><td><code>any even [1,3]</code></td><td><code>False</code></td></tr>
+<tr><td><code>all odd [1,3]</code></td><td><code>True</code></td></tr>
+<tr><td><code>filter even [1,2,3,4]</code></td><td><code>[2,4]</code></td></tr>
+<tr><td><code>map (*2) [1,2,3]</code></td><td><code>[2,4,6]</code></td></tr>
+</tbody></table></div>
+<p><code>sort</code> wymaga importu:</p>
+<pre><code>import Data.List (sort)
+-- sort [2,3,1] daje [1,2,3]</code></pre>
+<p><code>zip</code> kończy na krótszej liście. <code>take 10 [3,1,4]</code> daje całą dostępną listę. <code>takeWhile p</code> bierze początek do pierwszego niespełnienia <code>p</code>, a <code>filter p</code> przeszukuje dalej.</p>
+<h2>Przypadki brzegowe</h2>
+<p><code>head</code>, <code>tail</code>, <code>last</code>, <code>init</code> i <code>maximum</code> nie obsługują pustej listy. <code>!!</code> zgłasza błąd również dla indeksu ujemnego lub spoza zakresu.</p>
+<pre><code>take 5 []  -- []
+drop 5 []  -- []
+sum []     -- 0
+product [] -- 1
+any even [] -- False
+all even [] -- True</code></pre>
+<p>Brak błędu dla pustej listy nie oznacza zakończenia dla dowolnej listy nieskończonej. <code>length [1..]</code> nie kończy się. Terminem „całkowita” na slajdach opisano przede wszystkim obsługę zwykłych przypadków brzegowych; należy pamiętać także o niekończących się obliczeniach.</p>
+<h2>Koszty list</h2>
+<p>Dla już dostępnej struktury listy, bez kosztu obliczania jej elementów:</p>
+<div class="table-wrap"><table><thead><tr><th scope="col">Operacja</th><th scope="col">Typowy koszt</th></tr></thead><tbody>
+<tr><td><code>head xs</code>, <code>tail xs</code>, <code>x : xs</code>, <code>null xs</code></td><td>stały, O(1), gdy przypadek jest poprawny</td></tr>
+<tr><td><code>xs !! i</code></td><td>O(i + 1)</td></tr>
+<tr><td><code>length xs</code>, <code>last xs</code></td><td>O(n) dla n elementów</td></tr>
+<tr><td>pełne przejście <code>xs ++ ys</code></td><td>O(długość xs)</td></tr>
+<tr><td><code>reverse xs</code></td><td>O(n)</td></tr>
+</tbody></table></div>
+<p>Leniwość oznacza, że samo utworzenie wyrażenia <code>xs ++ ys</code> nie musi od razu przechodzić całej lewej listy. Koszt pojawia się podczas konsumowania wyniku.</p>
+<p>Indeksowanie kolejno wszystkich elementów przez <code>!!</code> może dać O(n²). Zwykle przechodź listę bezpośrednio przez wzorce lub funkcje biblioteczne. Do intensywnego dostępu losowego służą inne struktury, np. tablice lub wektory.</p>
+<h2>List comprehensions</h2>
+<pre><code>[x ^ 2 | x &lt;- [1..10], odd x]
+-- [1,9,25,49,81]
+
+[(x,c) | x &lt;- [1..3], c &lt;- &quot;ab&quot;]
+-- [(1,&#x27;a&#x27;),(1,&#x27;b&#x27;),(2,&#x27;a&#x27;),(2,&#x27;b&#x27;),(3,&#x27;a&#x27;),(3,&#x27;b&#x27;)]
+
+[(x,y) | x &lt;- [1..3], y &lt;- [x..3]]
+-- [(1,1),(1,2),(1,3),(2,2),(2,3),(3,3)]</code></pre>
+<p>Przed <code>|</code> jest wynikowy element. <code>x &lt;- lista</code> jest generatorem, a <code>odd x</code> warunkiem. Kolejny generator może korzystać ze zmiennych wcześniejszego; ostatni zmienia się najszybciej.</p>
+<p>Trójki pitagorejskie:</p>
+<pre><code>triples :: [(Int,Int,Int)]
+triples = [(a,b,c) | a &lt;- [1..10], b &lt;- [a..10], c &lt;- [b..10],
+                     a*a + b*b == c*c]
+-- [(3,4,5),(6,8,10)]</code></pre>
+<p>Zakresy wymuszają <code>a &lt;= b &lt;= c</code>, więc nie otrzymujemy obu przestawień przyprostokątnych.</p>
+<h2>Pusty zakres i liczby pierwsze</h2>
+<p><code>[2..0]</code> jest pustą listą. Brak znalezionych dzielników nie wystarcza, by uznać 1 lub liczbę ujemną za pierwszą.</p>
+<pre><code>isPrime :: Int -&gt; Bool
+isPrime n = n &gt; 1 &amp;&amp; null [i | i &lt;- [2..n-1], n `mod` i == 0]</code></pre>
+<p>To prosty przykład dydaktyczny. <code>null</code> pyta tylko, czy lista jest pusta, i nie wymaga klasy <code>Eq</code> dla jej elementów, w przeciwieństwie do porównania <code>xs == []</code>.</p><footer class="links paper-foot"><a href="01-funkcje.html">Poprzedni rozdział</a> <a href="../../quizy/index.html?wyklad=2">Quiz z wykładu 2</a> <a href="03-leniwosc.html">Następny rozdział</a></footer></article></div></main></body></html>

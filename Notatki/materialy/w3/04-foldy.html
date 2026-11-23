@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="pl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>4. Foldy — foldr, foldl, foldl&#x27; i wersje bez wartości początkowej · Haskell</title>
+<link rel="stylesheet" href="../../study.css">
+<script src="../../theme.js" defer></script></head>
+<body><header class="mast"><div class="mast-inner">
+<a href="../../../index.html" class="brand">Haskell / Kurs</a>
+<nav class="site-nav" aria-label="Nawigacja główna"><a href="../index.html" aria-current="page">Materiały</a> <a href="../../quizy/index.html">Quizy</a>
+<button id="theme" type="button" hidden></button></nav>
+</div></header><main class="page"><div class="reader"><nav class="book-nav" aria-label="Rozdziały"><a href="../index.html">Spis wszystkich wykładów</a><h2>Funkcje wyższego rzędu</h2><ul class="chapters"><li><a href="README.html">Wprowadzenie</a></li><li><a href="01-funkcje-wyzszego-rzedu.html">Funkcje wyższego rzędu, lambdy i domknięcia</a></li><li><a href="02-skladanie-i-aplikacja.html">Składanie funkcji oraz operatory . i $</a></li><li><a href="03-przetwarzanie-list.html">map, filter, zipWith, unzip i concat</a></li><li><a href="04-foldy.html" aria-current="page">Foldy — foldr, foldl, foldl&#x27; i wersje bez wartości początkowej</a></li><li><a href="05-pipeline.html">Collection Pipeline — proces z małych funkcji</a></li><li><a href="06-cwiczenia.html">Ćwiczenia — najpierw samodzielnie, potem sprawdź</a></li><li><a href="07-sciaga.html">Ściąga — wykład 3</a></li></ul></nav><article class="paper"><p class="eyebrow">Wykład 3 · Funkcje wyższego rzędu</p><h1>4. Foldy — foldr, foldl, foldl&#x27; i wersje bez wartości początkowej</h1><p><a href="README.html">Spis wykładu 3</a> · Slajdy 12–13</p>
+<h2>Co to znaczy „złożyć listę”?</h2>
+<p>Fold zastępuje wspólny schemat rekurencji. Określasz operację łączenia i wynik przypadku pustego. „Redukcja” nie oznacza, że wynik musi być pojedynczą liczbą — może być też listą, parą lub funkcją.</p>
+<h2>foldr — nawiasy od prawej</h2>
+<p>Wersja dla list:</p>
+<pre><code>foldr :: (a -&gt; b -&gt; b) -&gt; b -&gt; [a] -&gt; b
+foldr f z [] = z
+foldr f z (x:xs) = f x (foldr f z xs)</code></pre>
+<ul>
+<li><code>a</code>: typ elementu listy.</li>
+<li><code>b</code>: typ wyniku składania.</li>
+<li><code>f</code>: dostaje bieżący element i wynik przetworzenia ogona.</li>
+<li><code>z</code>: wynik pustej listy.</li>
+</ul>
+<pre><code>foldr f z [x1,x2,x3]
+= f x1 (f x2 (f x3 z))</code></pre>
+<p>Możesz myśleć o zastępowaniu <code>(:)</code> przez <code>f</code>, a końcowego <code>[]</code> przez <code>z</code>.</p>
+<pre><code>foldr (+) 0 [1,2,3] -- 1+(2+(3+0)) = 6
+foldr (*) 1 [2,3,4] -- 2*(3*(4*1)) = 24
+foldr (:) [] [1,2,3] -- [1,2,3]
+foldr (\_ n -&gt; 1+n) 0 [7,8,9] -- 3</code></pre>
+<p>Dlaczego <code>0</code> dla sumy i <code>1</code> dla iloczynu? To elementy neutralne tych operacji. Inne wartości początkowe też są możliwe, ale zmienią wynik.</p>
+<h2>foldl — akumulator po lewej</h2>
+<pre><code>foldl :: (b -&gt; a -&gt; b) -&gt; b -&gt; [a] -&gt; b
+foldl f z [] = z
+foldl f z (x:xs) = foldl f (f z x) xs</code></pre>
+<p>Tutaj <code>f</code> otrzymuje najpierw akumulator, potem element.</p>
+<pre><code>foldl f z [x1,x2,x3]
+= f (f (f z x1) x2) x3</code></pre>
+<p>Typowy błąd to przestawienie tych argumentów. Na slajdzie z pomocniczym schematem rekurencji kolejność działania jest zapisana inaczej niż w właściwej definicji <code>foldl</code>. Ucz się definicji <code>foldl f (f z x) xs</code> i sprawdzaj kolejność na odejmowaniu.</p>
+<h2>Porównanie: operacja niełączna ujawnia różnicę</h2>
+<pre><code>foldr (-) 0 [1,2,3] -- 1-(2-(3-0)) = 2
+foldl (-) 0 [1,2,3] -- ((0-1)-2)-3 = -6</code></pre>
+<p>Nie wybieraj kierunku na podstawie przykładu z dodawaniem. Dla zwykłych małych liczb oba sumowania wyglądają tak samo, ale operacje niełączne dają inne wyniki. Dla liczb zmiennoprzecinkowych także samo grupowanie sumy może wpływać na zaokrąglenia.</p>
+<div class="table-wrap"><table><thead><tr><th scope="col">Cecha</th><th scope="col">foldr</th><th scope="col">foldl</th></tr></thead><tbody>
+<tr><td>Funkcja kroku</td><td>element → wynik ogona → wynik</td><td>akumulator → element → akumulator</td></tr>
+<tr><td>Typ kroku</td><td><code>a -&gt; b -&gt; b</code></td><td><code>b -&gt; a -&gt; b</code></td></tr>
+<tr><td>Układ nawiasów</td><td><code>f x1 (f x2 z)</code></td><td><code>f (f z x1) x2</code></td></tr>
+<tr><td>Pusta lista</td><td><code>z</code></td><td><code>z</code></td></tr>
+<tr><td>Nieskończone wejście</td><td>czasem produktywne / krótkie spięcie</td><td>nie zwraca końcowego wyniku</td></tr>
+</tbody></table></div>
+<p>Układ nawiasów opisuje zależności, nie bezwarunkową kolejność obliczania wszystkich argumentów. Haskell pozostaje leniwy.</p>
+<h2>Fold może budować listę</h2>
+<pre><code>mapOwn f = foldr (\x acc -&gt; f x : acc) []
+filterOwn p = foldr (\x acc -&gt; if p x then x:acc else acc) []
+
+reverseSlow = foldr (\x acc -&gt; acc ++ [x]) []
+reverseFast = foldl (\acc x -&gt; x:acc) []</code></pre>
+<p>Pierwsze dwa przykłady odtwarzają <code>map</code> i <code>filter</code>. Odwracanie z <code>++ [x]</code> ma koszt kwadratowy, bo wielokrotnie przechodzi lewą listę. Wersja odkładająca na początek ma liniową liczbę kroków listowych. Sam wybór folda nie gwarantuje wydajności: znaczenie ma też funkcja kroku.</p>
+<h2>Leniwość i krótkie spięcie w foldr</h2>
+<pre><code>foldr (||) False [False,True,undefined] -- True
+foldr (&amp;&amp;) True [False,undefined] -- False
+foldr (\x _ -&gt; x) 0 [1..] -- 1</code></pre>
+<p>Funkcja kroku może nie potrzebować wyniku ogona. <code>foldr</code> może wtedy zakończyć się bez przejścia całego wejścia.</p>
+<pre><code>foldr (+) 0 [1..] -- nie zwraca skończonego wyniku</code></pre>
+<p><strong>Nieprawda:</strong> „foldr zawsze obsługuje listy nieskończone”. Działa tylko wtedy, gdy konkretna funkcja kroku i sposób użycia wyniku pozwalają uniknąć niekończącej się pracy.</p>
+<h2>foldl&#x27; — ścisły akumulator</h2>
+<p>Zwykłe <code>foldl (+) 0 xs</code> może gromadzić odłożone dodawania. Ścisła wersja ogranicza ten problem:</p>
+<pre><code>import Data.List (foldl&#x27;)
+
+sumStrict :: Num a =&gt; [a] -&gt; a
+sumStrict = foldl&#x27; (+) 0</code></pre>
+<p><code>foldl&#x27;</code> wymusza kolejne akumulatory do WHNF. To nie oznacza głębokiego obliczenia wszystkich pól złożonego akumulatora. Nie daje też końcowego wyniku dla nieskończonej listy.</p>
+<p>Praktycznie: do pełnego sumowania skończonej listy liczb często wybiera się <code>foldl&#x27;</code>; do budowania list i krótkiego spięcia naturalne jest <code>foldr</code>.</p>
+<h2>foldl1 i foldr1</h2>
+<p>Nie podajemy <code>z</code>. Dla niepustej listy wartość bazowa pochodzi z listy.</p>
+<pre><code>foldl1 (-) [1,2,3] -- (1-2)-3 = -4
+foldr1 (-) [1,2,3] -- 1-(2-3) = 2
+foldl1 (+) [7] -- 7
+foldr1 (+) [7] -- 7</code></pre>
+<p>Dla <code>[]</code> obie funkcje zgłaszają błąd. Typ dla list to <code>(a -&gt; a -&gt; a) -&gt; [a] -&gt; a</code>; w GHCi może pojawić się ogólniejsze ograniczenie <code>Foldable t</code>.</p>
+<h2>Jak rozwiązywać pytania o foldy?</h2>
+<ol start="1">
+<li>Zapisz funkcję kroku i <code>z</code>.</li>
+<li>Rozwiń wszystkie nawiasy według kierunku.</li>
+<li>Podstaw definicję kroku, pilnując kolejności argumentów.</li>
+<li>Dopiero wtedy policz.</li>
+<li>Przy <code>undefined</code> sprawdź, czy krok rzeczywiście potrzebuje dalszego wyniku.</li>
+</ol><footer class="links paper-foot"><a href="03-przetwarzanie-list.html">Poprzedni rozdział</a> <a href="../../quizy/index.html?wyklad=3">Quiz z wykładu 3</a> <a href="05-pipeline.html">Następny rozdział</a></footer></article></div></main></body></html>

@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="pl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wykład 4 — algebraiczne typy danych i klasy typów · Haskell</title>
+<link rel="stylesheet" href="../../study.css">
+<script src="../../theme.js" defer></script></head>
+<body><header class="mast"><div class="mast-inner">
+<a href="../../../index.html" class="brand">Haskell / Kurs</a>
+<nav class="site-nav" aria-label="Nawigacja główna"><a href="../index.html" aria-current="page">Materiały</a> <a href="../../quizy/index.html">Quizy</a>
+<button id="theme" type="button" hidden></button></nav>
+</div></header><main class="page"><div class="reader"><nav class="book-nav" aria-label="Rozdziały"><a href="../index.html">Spis wszystkich wykładów</a><h2>Typy algebraiczne</h2><ul class="chapters"><li><a href="README.html" aria-current="page">Wprowadzenie</a></li><li><a href="01-myslenie-typami.html">Jak zaprojektować typ danych</a></li><li><a href="02-drzewa-i-interfejsy.html">Drzewa, instancje i granice modułów</a></li></ul></nav><article class="paper"><p class="eyebrow">Wykład 4 · Typy algebraiczne</p><h1>Wykład 4 — algebraiczne typy danych i klasy typów</h1><p><a href="../index.html#w4">Materiały online</a> · <a href="../../quizy/index.html?wyklad=4">Quiz z wykładu 4</a></p>
+<p>Opracowanie wykładu Romana Dębskiego, slajdy 3–23. Zacznij od konstruktorów i wzorców, potem przejdź do instancji i modułów.</p>
+<h2>1. <code>type</code>, <code>newtype</code> i <code>data</code> (slajdy 3–8)</h2>
+<div class="table-wrap"><table><thead><tr><th scope="col">Deklaracja</th><th scope="col">Co tworzy?</th><th scope="col">Kiedy użyć?</th></tr></thead><tbody>
+<tr><td><code>type Polar = (Double, Double)</code></td><td>synonim istniejącego typu</td><td>Chcesz nazwać znaczenie pary, ale akceptujesz, że kompilator nie odróżni jej od innych par typu <code>(Double, Double)</code>.</td></tr>
+<tr><td><code>newtype Meters = Meters Double</code></td><td>odrębny typ, jeden konstruktor z jednym polem</td><td>Chcesz odróżniać metry od sekund bez dodatkowego opakowania w reprezentacji.</td></tr>
+<tr><td><code>data Shape = Circle Double | Rect Double Double</code></td><td>odrębny typ, dowolna liczba wariantów i pól</td><td>Chcesz opisać różne postacie danych lub zgrupować pola.</td></tr>
+</tbody></table></div>
+<pre><code>data Point = Point Double Double deriving Show
+data Pair a = Pair a a deriving Show</code></pre>
+<p>Po lewej <code>Point</code> jest nazwą typu, a z prawej konstruktorem wartości o typie <code>Double -&gt; Double -&gt; Point</code>. <code>Point 1</code> nadal jest funkcją: <code>Double -&gt; Point</code>. Konstruktor <code>Pair</code> ma typ <code>a -&gt; a -&gt; Pair a</code>; oba argumenty muszą mieć ten sam typ.</p>
+<pre><code>data Person = Person { firstName :: String, city :: String }
+  deriving (Show, Eq)
+
+moveTo :: String -&gt; Person -&gt; Person
+moveTo place p = p { city = place }</code></pre>
+<p><code>city :: Person -&gt; String</code> to selektor. Aktualizacja tworzy nową wartość; oryginalna osoba nadal ma poprzednie miasto. W zwykłej składni selektory zajmują nazwy w module (rozszerzenia GHC mogą zmienić te zasady).</p>
+<h2>2. Warianty, Maybe i typy rekurencyjne (slajdy 9–13)</h2>
+<p><code>Circle Double</code> i <code>Rect Double Double</code> to dwa warianty jednego typu <code>Shape</code>: mogą występować razem w <code>[Shape]</code>. Alternatywa konstruktorów to <strong>suma</strong>, a pola jednego konstruktora tworzą <strong>iloczyn</strong>. Przy pisaniu funkcji rozpatrz każdy wariant; GHC z <code>-Wall</code> ostrzega o niepełnych wzorcach.</p>
+<pre><code>safeHead :: [a] -&gt; Maybe a
+safeHead [] = Nothing
+safeHead (x:_) = Just x
+
+describeHead :: Show a =&gt; [a] -&gt; String
+describeHead xs = case safeHead xs of
+  Nothing -&gt; &quot;pusta lista&quot;
+  Just x  -&gt; show x</code></pre>
+<p><code>Just 3</code> nie jest liczbą, lecz wartością opakowaną w <code>Maybe</code>. Wynikiem <code>safeHead []</code> jest <code>Nothing</code> zamiast wyjątku. Podobnie dzielenie może zwrócić <code>Nothing</code> dla zera, a funkcja szukająca pierwiastków dla ujemnej delty. Przy typie <code>Int</code> skrajny przypadek <code>minBound \</code>div\<code> (-1)</code> może dodatkowo przepełnić wynik; do prostego przykładu bez tego przypadku możesz użyć <code>Integer</code>.</p>
+<pre><code>data Tree a = Empty | Node (Tree a) a (Tree a)
+  deriving (Show, Eq)
+
+size :: Tree a -&gt; Int
+size Empty = 0
+size (Node l _ r) = 1 + size l + size r
+
+insert :: Ord a =&gt; a -&gt; Tree a -&gt; Tree a
+insert x Empty = Node Empty x Empty
+insert x (Node l y r)
+  | x &lt; y     = Node (insert x l) y r
+  | x &gt; y     = Node l y (insert x r)
+  | otherwise = Node l y r
+
+data Expr = Lit Int | Add Expr Expr | Mul Expr Expr deriving Show
+
+eval :: Expr -&gt; Int
+eval (Lit n) = n
+eval (Add l r) = eval l + eval r
+eval (Mul l r) = eval l * eval r</code></pre>
+<p><code>size</code> przechodzi oba poddrzewa. <code>insert</code> w BST wybiera jedną gałąź i w tej wersji ignoruje duplikaty. Sam typ <code>Tree</code> nie gwarantuje porządku BST. Dla <code>Expr</code> struktura wyznacza kolejność działań: <code>Mul (Add (Lit 1) (Lit 2)) (Lit 3)</code> daje 9. Gdy wypisujesz drzewo wyrażeń, nawiasuj oba rodzaje operacji albo uwzględnij priorytety i łączność; samo nawiasowanie dodawania nie zachowa każdej struktury.</p>
+<h2>3. Klasy i instancje (slajdy 14–20)</h2>
+<ul>
+<li><strong>Klasa</strong> określa dostępne metody, np. <code>Eq</code> udostępnia <code>==</code> i <code>/=</code>. <strong>Instancja</strong> określa sposób ich wykonania dla danego typu. <code>MINIMAL</code> wskazuje wymagany zestaw metod; dla <code>Eq</code> wystarczy zdefiniować jedną z dwóch.</li>
+<li><code>deriving Show</code> daje standardowy zapis konstruktora i jego pól. <code>deriving Eq</code> porównuje konstruktory i pola, a w drzewie także kształt. <code>deriving Ord</code> porównuje najpierw kolejność konstruktorów <strong>w deklaracji</strong>, potem pola od lewej. Dlatego <code>maximum [Circle 3, Rect 1 1]</code> wybierze <code>Rect</code>, jeżeli <code>Circle</code> zadeklarowano wcześniej. To nie jest porównanie pól powierzchni. <code>Ord</code> wymaga też <code>Eq</code>.</li>
+<li>Dla wyliczenia <code>data Day = Mon | Tue | Wed | Thu | Fri | Sat | Sun deriving (Show, Eq, Ord, Enum, Bounded)</code> można zapisać <code>[Mon..Fri]</code> i <code>minBound :: Day</code>.</li>
+<li>Ręczna instancja może porównać temperatury po sprowadzeniu do wspólnej jednostki. Przy <code>Double</code> pamiętaj o zaokrągleniach. Dla parametrycznego drzewa potrzebujesz <code>instance Eq a =&gt; Eq (Tree a)</code>, bo porównujesz także wartości typu <code>a</code>. Wybierz ręczną instancję <strong>albo</strong> <code>deriving Eq</code>.</li>
+<li>W instancji <code>Num V2</code> ze slajdu działania wykonuje się po współrzędnych, a <code>fromInteger 2 = V2 2 2</code> (dla konkretnego wejścia 2). Stąd <code>V2 1 2 * 2</code> daje <code>V2 2 4</code>. Podobna reprezentacja nie daje automatycznie instancji <code>Num</code> dla <code>Meters</code>.</li>
+</ul>
+<pre><code>class HasArea a where
+  area :: a -&gt; Double
+  describeArea :: a -&gt; String
+  describeArea a = &quot;pole: &quot; ++ show (area a)
+
+newtype Disk = Disk Double
+instance HasArea Disk where
+  area (Disk r) = pi*r*r</code></pre>
+<p><code>reverse :: [a] -&gt; [a]</code> działa tak samo niezależnie od typu elementów (<strong>polimorfizm parametryczny</strong>). <code>area :: HasArea a =&gt; a -&gt; Double</code> korzysta z implementacji przypisanej typowi (<strong>ad hoc</strong>). Ograniczenie klasy nie tworzy heterogenicznej listy. Gdy spodziewasz się głównie nowych operacji na ustalonych wariantach, wybierz wspólny typ sumy. Gdy spodziewasz się nowych typów obsługujących ten sam zestaw operacji, rozważ klasę. Rozszerzanie w obu kierunkach to tzw. <em>expression problem</em>.</p>
+<h2>4. Moduły i abstrakcyjny stos (slajdy 21–23)</h2>
+<pre><code>module Stack (Stack, empty, push, pop) where
+
+newtype Stack a = Stack [a]
+
+empty :: Stack a
+empty = Stack []
+
+push :: a -&gt; Stack a -&gt; Stack a
+push x (Stack xs) = Stack (x:xs)
+
+pop :: Stack a -&gt; Maybe (a, Stack a)
+pop (Stack []) = Nothing
+pop (Stack (x:xs)) = Just (x, Stack xs)</code></pre>
+<p>Zapisz moduł jako <code>Stack.hs</code>. W innym pliku <code>import Stack</code> pozwala użyć typu i funkcji, ale nie konstruktora w wyrażeniu lub wzorcu. <code>Stack(..)</code> na liście eksportu ujawniłoby konstruktor. Po <code>push 2 (push 1 empty)</code> pierwsze <code>pop</code> oddaje 2 i pozostały stos (LIFO). Wartości się nie mutują.</p>
+<p><code>import qualified Data.Map as Map</code> daje nazwę <code>Map.lookup</code>, bez kolizji z <code>lookup</code> z Prelude. <strong>Algebraiczny</strong> typ opisuje warianty i pola. <strong>Abstrakcyjny</strong> typ opisuje publiczne operacje i ukrywa reprezentację. Skrót ADT może oznaczać oba pojęcia.</p>
+<h2>Sprawdź się</h2>
+<ol start="1">
+<li>Czy <code>type Seconds = Double</code> i <code>type Meters = Double</code> pozwolą wykryć zamianę argumentów? <strong>Nie: oba są synonimami Double.</strong></li>
+<li>Jaki typ ma <code>Rect 2</code>? <strong><code>Double -&gt; Shape</code>.</strong></li>
+<li>Czy dwa drzewa z tymi samymi elementami są zawsze równe przy <code>deriving Eq</code>? <strong>Nie: kształt też musi być identyczny.</strong></li>
+<li>Czy <code>deriving Show</code> wystarczy, by użyć <code>==</code>? <strong>Nie: potrzeba instancji Eq.</strong></li>
+<li>Czemu <code>pop</code> zwraca parę wewnątrz <code>Maybe</code>? <strong>W przypadku sukcesu oddaje zdjęty element i nowy stos; dla pustego zwraca Nothing.</strong></li>
+</ol><footer class="links paper-foot"><a href="../../quizy/index.html?wyklad=4">Quiz z wykładu 4</a> <a href="01-myslenie-typami.html">Następny rozdział</a></footer></article></div></main></body></html>

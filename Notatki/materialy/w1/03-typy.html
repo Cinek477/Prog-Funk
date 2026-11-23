@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="pl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>3. Typy · Haskell</title>
+<link rel="stylesheet" href="../../study.css">
+<script src="../../theme.js" defer></script></head>
+<body><header class="mast"><div class="mast-inner">
+<a href="../../../index.html" class="brand">Haskell / Kurs</a>
+<nav class="site-nav" aria-label="Nawigacja główna"><a href="../index.html" aria-current="page">Materiały</a> <a href="../../quizy/index.html">Quizy</a>
+<button id="theme" type="button" hidden></button></nav>
+</div></header><main class="page"><div class="reader"><nav class="book-nav" aria-label="Rozdziały"><a href="../index.html">Spis wszystkich wykładów</a><h2>Podstawy Haskella</h2><ul class="chapters"><li><a href="README.html">Wprowadzenie</a></li><li><a href="01-myslenie-funkcyjne.html">Myślenie funkcyjne</a></li><li><a href="02-skladnia-i-definicje.html">Składnia i definicje</a></li><li><a href="03-typy.html" aria-current="page">Typy</a></li><li><a href="05-praktyka-i-sciaga.html">Praca z kodem i ściąga</a></li></ul></nav><article class="paper"><p class="eyebrow">Wykład 1 · Podstawy Haskella</p><h1>3. Typy</h1><h2>Podstawowe typy</h2>
+<div class="table-wrap"><table><thead><tr><th scope="col">Typ</th><th scope="col">Przykład</th><th scope="col">Co opisuje</th></tr></thead><tbody>
+<tr><td><code>Int</code></td><td><code>42 :: Int</code></td><td>liczby całkowite o ograniczonym zakresie</td></tr>
+<tr><td><code>Integer</code></td><td><code>42 :: Integer</code></td><td>liczby całkowite dowolnej precyzji, ograniczone dostępną pamięcią</td></tr>
+<tr><td><code>Float</code></td><td><code>1.5 :: Float</code></td><td>przybliżone liczby zmiennoprzecinkowe pojedynczej precyzji</td></tr>
+<tr><td><code>Double</code></td><td><code>1.5 :: Double</code></td><td>przybliżone liczby zmiennoprzecinkowe podwójnej precyzji</td></tr>
+<tr><td><code>Bool</code></td><td><code>True</code>, <code>False</code></td><td>wartości logiczne</td></tr>
+<tr><td><code>Char</code></td><td><code>&#x27;a&#x27;</code></td><td>pojedynczy znak</td></tr>
+<tr><td><code>String</code></td><td><code>&quot;Ala&quot;</code></td><td>lista znaków, czyli <code>[Char]</code></td></tr>
+<tr><td><code>[Int]</code></td><td><code>[1,2,3]</code></td><td>lista elementów jednego typu</td></tr>
+<tr><td><code>(Int, Char)</code></td><td><code>(1,&#x27;a&#x27;)</code></td><td>krotka o ustalonej liczbie i typach pól</td></tr>
+<tr><td><code>()</code></td><td><code>()</code></td><td>typ jednostkowy z jedną zwykłą wartością</td></tr>
+</tbody></table></div>
+<p><code>&#x27;a&#x27;</code> to znak, a <code>&quot;a&quot;</code> to jednoelementowa lista znaków. <code>[1, True]</code> jest niepoprawne, ale <code>(1, True)</code> jest poprawną krotką. Lista może mieć różną długość; typ krotki określa liczbę jej pól.</p>
+<h2>Czytanie sygnatur</h2>
+<pre><code>not :: Bool -&gt; Bool
+add :: Int -&gt; Int -&gt; Int
+swap :: (a, b) -&gt; (b, a)</code></pre>
+<p><code>-&gt;</code> opisuje funkcję: po lewej jest typ argumentu, po prawej typ wyniku. Strzałki grupują się w prawo:</p>
+<pre><code>Int -&gt; Int -&gt; Int
+-- znaczy Int -&gt; (Int -&gt; Int)</code></pre>
+<p><code>add</code> przyjmuje liczbę i zwraca funkcję przyjmującą kolejną liczbę. W codziennym użyciu mówimy, że przyjmuje dwa argumenty. To <strong>currying</strong>. Dzięki niemu można podać tylko część argumentów:</p>
+<pre><code>add x y = x + y
+addFive = add 5
+-- addFive 3 daje 8</code></pre>
+<p>Nie myl <code>a -&gt; b -&gt; c</code> z <code>(a, b) -&gt; c</code>: pierwsza funkcja otrzymuje argumenty kolejno, druga jedną parę.</p>
+<h2>Polimorfizm parametryczny</h2>
+<p>Mała litera w typie, np. <code>a</code>, jest zmienną typu.</p>
+<pre><code>identity :: a -&gt; a
+identity x = x
+
+swap :: (a, b) -&gt; (b, a)
+swap (x, y) = (y, x)</code></pre>
+<p><code>identity</code> działa dla różnych typów. W jednym użyciu wszystkie wystąpienia <code>a</code> oznaczają ten sam typ. W <code>swap</code> typy <code>a</code> i <code>b</code> mogą być różne, ale mogą też być takie same.</p>
+<h2>Klasy typów i ograniczenia</h2>
+<pre><code>(==) :: Eq a =&gt; a -&gt; a -&gt; Bool
+(+)  :: Num a =&gt; a -&gt; a -&gt; a</code></pre>
+<p><code>=&gt;</code> oddziela wymagania od właściwego typu funkcji. <code>Eq a</code> oznacza, że dla typu <code>a</code> dostępne jest porównanie równości. Klasa typów opisuje zestaw operacji; nie jest klasą obiektów w znaczeniu programowania obiektowego.</p>
+<div class="table-wrap"><table><thead><tr><th scope="col">Ograniczenie</th><th scope="col">Co pozwala robić</th></tr></thead><tbody>
+<tr><td><code>Eq a</code></td><td>porównywać przez <code>==</code>, <code>/=</code></td></tr>
+<tr><td><code>Ord a</code></td><td>porządkować przez <code>&lt;</code>, <code>&gt;</code>, <code>&lt;=</code>, <code>&gt;=</code> itd.; wymaga też <code>Eq</code></td></tr>
+<tr><td><code>Num a</code></td><td>używać m.in. <code>+</code>, <code>-</code>, <code>*</code>, literałów całkowitych</td></tr>
+<tr><td><code>Integral a</code></td><td>używać m.in. <code>div</code>, <code>mod</code>, np. dla <code>Int</code> i <code>Integer</code></td></tr>
+<tr><td><code>Fractional a</code></td><td>używać <code>/</code>, np. dla <code>Double</code></td></tr>
+<tr><td><code>Floating a</code></td><td>używać m.in. <code>sqrt</code>, <code>sin</code>, <code>pi</code>, <code>**</code></td></tr>
+<tr><td><code>Show a</code></td><td>zamieniać wartość na tekst przez <code>show</code></td></tr>
+</tbody></table></div>
+<pre><code>same :: Eq a =&gt; a -&gt; a -&gt; Bool
+same x y = x == y
+
+largerDouble :: (Num a, Ord a) =&gt; a -&gt; a
+largerDouble x = if x &gt; 3 then 2 * x else 42</code></pre>
+<p><code>Num</code> nie wystarcza do <code>/</code> ani do porównania <code>&gt;</code>. <code>a -&gt; a</code> bez ograniczeń nie pozwala zakładać, że argument jest liczbą.</p>
+<h2>Inferencja typów</h2>
+<p>Kompilator potrafi wywnioskować typ z użytych operacji:</p>
+<pre><code>square x = x * x
+-- square :: Num a =&gt; a -&gt; a
+
+swap (x, y) = (y, x)
+-- swap :: (a, b) -&gt; (b, a)
+
+choose x = if x &gt; 3 then 2 * x else x / 42
+-- choose :: (Fractional a, Ord a) =&gt; a -&gt; a</code></pre>
+<p>Dla <code>choose</code>: <code>&gt;</code> wymaga <code>Ord</code>, a <code>/</code> wymaga <code>Fractional</code>. Wymaganie <code>Num</code> jest już zawarte w <code>Fractional</code>.</p>
+<pre><code>-- BŁĄD:
+wrong x = if x &gt; 3 then 2 * x else False</code></pre>
+<p>Gałąź liczbowa i gałąź logiczna nie mają zgodnego typu. Kompilator odrzuca definicję zamiast wybrać typ zależny od wartości argumentu.</p>
+<p>Warto pisać sygnatury nawet tam, gdzie nie są konieczne: dokumentują zamiar i pomagają znaleźć błędy. Konkretna sygnatura, np. <code>Int -&gt; Int</code>, celowo zawęża ogólniejszą funkcję.</p>
+<h2>Literały i konwersje</h2>
+<p>Literał <code>3</code> może być użyty w różnych typach liczbowych. Nie oznacza to automatycznej konwersji już istniejących wartości:</p>
+<pre><code>n :: Int
+n = 3
+
+x :: Double
+x = 2.5
+
+result :: Double
+result = fromIntegral n + x  -- 5.5</code></pre>
+<p><code>fromIntegral</code> przekształca wartość całkowitą do odpowiedniego typu liczbowego. <code>n + x</code> bez konwersji byłoby błędem. Typ literału lub wyrażenia można doprecyzować przez <code>::</code>, np. <code>(7 :: Double) / 2</code>.</p><footer class="links paper-foot"><a href="02-skladnia-i-definicje.html">Poprzedni rozdział</a> <a href="../../quizy/index.html?wyklad=1">Quiz z wykładu 1</a> <a href="05-praktyka-i-sciaga.html">Następny rozdział</a></footer></article></div></main></body></html>

@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="pl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>6. Narzędzia i mechanizmy Haskella — co to jest? · Haskell</title>
+<link rel="stylesheet" href="../../study.css">
+<script src="../../theme.js" defer></script></head>
+<body><header class="mast"><div class="mast-inner">
+<a href="../../../index.html" class="brand">Haskell / Kurs</a>
+<nav class="site-nav" aria-label="Nawigacja główna"><a href="../index.html" aria-current="page">Materiały</a> <a href="../../quizy/index.html">Quizy</a>
+<button id="theme" type="button" hidden></button></nav>
+</div></header><main class="page"><div class="reader"><nav class="book-nav" aria-label="Rozdziały"><a href="../index.html">Spis wszystkich wykładów</a><h2>Materiały uzupełniające</h2><ul class="chapters"><li><a href="README.html">Wprowadzenie</a></li><li><a href="04-listy-i-funkcje.html">Listy, rekurencja i funkcje wyższego rzędu</a></li><li><a href="06-narzedzia-i-mechanizmy.html" aria-current="page">Narzędzia i mechanizmy Haskella — co to jest?</a></li></ul></nav><article class="paper"><p class="eyebrow">Materiały uzupełniające</p><h1>6. Narzędzia i mechanizmy Haskella — co to jest?</h1><h2>Język a narzędzia</h2>
+<p><strong>Haskell</strong> to język programowania. <strong>GHC</strong> to implementacja tego języka, obejmująca kompilator i powiązane narzędzia. <strong>GHCi</strong> to środowisko interaktywne. Nazwy te nie oznaczają tego samego.</p>
+<div class="table-wrap"><table><thead><tr><th scope="col">Nazwa</th><th scope="col">Co to jest?</th><th scope="col">Do czego służy?</th></tr></thead><tbody>
+<tr><td><strong>GHC</strong> (Glasgow Haskell Compiler)</td><td>kompilator Haskella</td><td>sprawdza kod i typy oraz kompiluje program do postaci wykonywalnej</td></tr>
+<tr><td><strong>GHCi</strong></td><td>interaktywne środowisko związane z GHC</td><td>pozwala wpisywać wyrażenia, sprawdzać typy i wczytywać moduły bez ręcznego budowania programu przy każdej próbie</td></tr>
+<tr><td><strong>REPL</strong> (Read–Eval–Print Loop)</td><td>sposób interaktywnej pracy</td><td>odczytaj wyrażenie, oblicz, pokaż wynik, powtórz; GHCi jest przykładem REPL</td></tr>
+<tr><td><strong>runghc</strong></td><td>narzędzie do uruchamiania kodu Haskella</td><td>uruchamia plik <code>.hs</code> bez osobnego ręcznego wywołania kompilatora</td></tr>
+<tr><td><strong>GHCup</strong></td><td>instalator i menedżer narzędzi</td><td>pomaga instalować i wybierać wersje m.in. GHC oraz innych narzędzi ekosystemu</td></tr>
+<tr><td><strong>Cabal</strong></td><td>biblioteka i narzędzie związane z budowaniem pakietów Haskella</td><td>plik <code>.cabal</code> opisuje pakiet, a <code>cabal</code> pozwala m.in. budować projekty i obsługiwać zależności</td></tr>
+<tr><td><strong>Stack</strong></td><td>narzędzie do pracy z projektami</td><td>organizuje budowanie, zależności i dobór środowiska kompilacji</td></tr>
+<tr><td><strong>HLS</strong> (Haskell Language Server)</td><td>serwer językowy dla edytora</td><td>dostarcza m.in. informacje o typach i diagnostykę w edytorze</td></tr>
+<tr><td><strong>VS Code</strong></td><td>edytor kodu</td><td>służy do pisania kodu; rozszerzenie Haskell może współpracować z HLS</td></tr>
+<tr><td><strong>Prelude</strong></td><td>standardowy moduł importowany domyślnie w zwykłym kodzie</td><td>udostępnia m.in. <code>map</code>, <code>filter</code>, <code>sum</code>, <code>not</code>, podstawowe typy i operatory</td></tr>
+</tbody></table></div>
+<p>Kompilator przetwarza kod przed uruchomieniem programu. Środowisko interaktywne pozwala szybko eksperymentować. GHCi również sprawdza typy — praca interaktywna nie oznacza dynamicznego typowania.</p>
+<p>Przykładowe zastosowania:</p>
+<pre><code>ghc Main.hs -o program   — zbuduj program
+runghc Main.hs           — uruchom plik
+ghci                    — rozpocznij pracę interaktywną</code></pre>
+<p>W GHCi wpisujesz np. <code>2 + 3</code>, <code>:type map</code>, <code>:load Main.hs</code> i <code>:reload</code>.</p>
+<h2>Najważniejsze mechanizmy języka</h2>
+<h3>Czystość i przezroczystość referencyjna</h3>
+<p>Czysta funkcja oblicza wynik z argumentów bez obserwowalnych efektów ubocznych. Wyrażenie można zastąpić jego wartością bez zmiany znaczenia programu — to przezroczystość referencyjna.</p>
+<pre><code>double x = 2 * x
+-- double 4 można zastąpić przez 8</code></pre>
+<p>Haskell pozwala wykonywać efekty, np. wypisywanie tekstu, ale opisuje je jawnie w typach, np. przez <code>IO</code>. „Czysto funkcyjny” nie oznacza „nie może czytać plików”.</p>
+<h3>Niezmienność wartości</h3>
+<p>Wiązanie <code>x = 5</code> nadaje nazwę wartości; nie tworzy zmiennej aktualizowanej przypisaniami. Nowy wynik powstaje przez obliczenie nowej wartości. Wewnętrzne implementacje mogą używać mutacji, ale nie zmienia to znaczenia zwykłych czystych definicji.</p>
+<h3>Statyczne typowanie i inferencja typów</h3>
+<p><strong>Statyczne typowanie:</strong> zgodność typów jest sprawdzana przed wykonaniem danego kodu.</p>
+<p><strong>Inferencja typów:</strong> kompilator potrafi wywnioskować typ na podstawie definicji, więc często nie trzeba go zapisywać ręcznie.</p>
+<pre><code>square x = x * x
+-- wywnioskowany typ: Num a =&gt; a -&gt; a</code></pre>
+<p>Brak jawnej sygnatury nie oznacza braku typu. Typ nie jest zgadywany na podstawie pierwszego uruchomienia funkcji.</p>
+<h3>Polimorfizm i klasy typów</h3>
+<p><strong>Polimorfizm parametryczny:</strong> ta sama definicja działa dla różnych typów bez wymagania szczególnych operacji na nich.</p>
+<pre><code>identity :: a -&gt; a
+identity x = x</code></pre>
+<p><strong>Klasy typów:</strong> określają dostępne operacje dla typów. Ograniczenie <code>Eq a</code> wymaga możliwości sprawdzania równości wartości typu <code>a</code>.</p>
+<pre><code>same :: Eq a =&gt; a -&gt; a -&gt; Bool
+same x y = x == y</code></pre>
+<p>Klasy typów umożliwiają przeciążanie operacji: <code>(==)</code> ma implementacje dla różnych typów. Nie należy utożsamiać ich z klasami obiektowymi i dziedziczeniem obiektów.</p>
+<h3>Funkcje jako wartości i funkcje wyższego rzędu</h3>
+<p><strong>Funkcje pierwszorzędne:</strong> funkcje można przekazywać, zwracać i przechowywać jak inne wartości.</p>
+<p><strong>Funkcja wyższego rzędu:</strong> przyjmuje funkcję jako argument lub zwraca funkcję.</p>
+<pre><code>map (\x -&gt; x + 1) [1,2,3] -- [2,3,4]</code></pre>
+<p><code>map</code> jest funkcją wyższego rzędu, ponieważ otrzymuje funkcję do zastosowania na elementach listy.</p>
+<h3>Lambdy i domknięcia</h3>
+<p><strong>Lambda</strong> to zapis funkcji anonimowej: <code>\x -&gt; x + 1</code>.</p>
+<p><strong>Domknięcie</strong> to funkcja wraz z dostępem do wartości z otaczającego zakresu.</p>
+<pre><code>makeAdder n = \x -&gt; n + x
+-- makeAdder 5 zwraca funkcję, która dodaje zachowane n = 5</code></pre>
+<h3>Currying i częściowa aplikacja</h3>
+<p><strong>Currying</strong> oznacza przedstawienie funkcji wielu argumentów jako funkcji jednego argumentu, która zwraca kolejną funkcję.</p>
+<pre><code>add :: Int -&gt; Int -&gt; Int
+add x y = x + y</code></pre>
+<p>Typ czytamy jako <code>Int -&gt; (Int -&gt; Int)</code>.</p>
+<p><strong>Częściowa aplikacja</strong> to podanie części argumentów i uzyskanie funkcji czekającej na pozostałe:</p>
+<pre><code>addTen :: Int -&gt; Int
+addTen = add 10
+-- addTen 3 = 13</code></pre>
+<p>Currying opisuje postać funkcji, a częściowa aplikacja jest sposobem jej użycia.</p>
+<h3>Leniwe wartościowanie</h3>
+<p>Obliczenia są wykonywane w miarę zapotrzebowania na ich wynik. W typowym modelu wykonania GHC odroczone obliczenie jest reprezentowane przez <strong>thunk</strong>; po obliczeniu jego wynik może być współdzielony.</p>
+<pre><code>take 3 [1..] -- [1,2,3]</code></pre>
+<p>Nie trzeba obliczać całej nieskończonej listy. Leniwość nie oznacza wykonywania wszystkiego równolegle ani automatycznej oszczędności pamięci.</p>
+<h3>Dopasowanie wzorców</h3>
+<p>Wybiera równanie funkcji lub gałąź <code>case</code> na podstawie struktury danych. Może też rozpakować dane i nadać nazwy ich częściom.</p>
+<pre><code>isEmpty [] = True
+isEmpty (_:_) = False</code></pre>
+<p>Pierwszy pasujący wzorzec wygrywa. Wzorzec <code>x:xs</code> pasuje tylko do niepustej listy.</p>
+<h3>Rekurencja i rekurencja ogonowa</h3>
+<p><strong>Rekurencja:</strong> funkcja wywołuje samą siebie.</p>
+<pre><code>sumList [] = 0
+sumList (x:xs) = x + sumList xs</code></pre>
+<p><strong>Rekurencja ogonowa:</strong> wynik wywołania rekurencyjnego jest bezpośrednio wynikiem danej gałęzi — po powrocie nie pozostaje dodatkowe działanie.</p>
+<pre><code>sumAcc acc [] = acc
+sumAcc acc (x:xs) = sumAcc (acc + x) xs</code></pre>
+<p><code>sumList</code> nie jest ogonowa, bo po wywołaniu pozostaje dodawanie. <code>sumAcc</code> jest ogonowa, ale w leniwym Haskellu sam ten fakt nie gwarantuje stałego zużycia pamięci: akumulator może zawierać odłożone dodawania. W praktyce do ścisłego składania skończonej listy często służy <code>foldl&#x27;</code> z <code>Data.List</code>.</p>
+<h3>List comprehensions i składanie funkcji</h3>
+<p><strong>List comprehension</strong> tworzy listę na podstawie generatorów i warunków:</p>
+<pre><code>[x * x | x &lt;- [1..5], odd x] -- [1,9,25]</code></pre>
+<p><strong>Składanie funkcji</strong> łączy przekształcenia: <code>(f . g) x = f (g x)</code>. Na przykład <code>sum . filter even</code> najpierw wybiera liczby parzyste, a następnie je sumuje.</p>
+<h3>Typy algebraiczne — podstawowe rozpoznanie pojęcia</h3>
+<p>Pozwalają opisywać własne dane przez konstruktory i ich pola.</p>
+<pre><code>data Shape = Circle Double | Rectangle Double Double</code></pre>
+<p>Wartość typu <code>Shape</code> jest kołem z promieniem albo prostokątem z dwoma wymiarami. <code>|</code> rozdziela warianty. Konstruktory zaczynają się wielką literą i mogą być używane we wzorcach.</p>
+<pre><code>area :: Shape -&gt; Double
+area (Circle r) = pi * r * r
+area (Rectangle a b) = a * b</code></pre>
+<p>To krótki dodatek pojęciowy; pełne definiowanie typów jest kolejnym etapem nauki.</p>
+<h2>Krótkie odpowiedzi do powtórzenia</h2>
+<div class="table-wrap"><table><thead><tr><th scope="col">Pytanie</th><th scope="col">Odpowiedź</th></tr></thead><tbody>
+<tr><td>Czym jest GHC?</td><td>Kompilatorem Haskella: sprawdza i tłumaczy kod na program wykonywalny.</td></tr>
+<tr><td>Czym jest GHCi?</td><td>Interaktywnym środowiskiem do obliczania wyrażeń, sprawdzania typów i wczytywania kodu Haskella.</td></tr>
+<tr><td>Czym jest GHCup?</td><td>Narzędziem do instalowania i zarządzania narzędziami Haskella.</td></tr>
+<tr><td>Czy Haskell jest statycznie typowany?</td><td>Tak. Inferencja pozwala pomijać część jawnych sygnatur, ale typy nadal są sprawdzane.</td></tr>
+<tr><td>Co znaczy „leniwie”?</td><td>Wyrażenie jest obliczane dopiero w zakresie potrzebnym do uzyskania wyniku.</td></tr>
+<tr><td>Co znaczy „czysta funkcja”?</td><td>Wynik zależy od argumentów, a obliczenie nie ma obserwowalnych efektów ubocznych.</td></tr>
+<tr><td>Co to funkcja wyższego rzędu?</td><td>Funkcja przyjmująca lub zwracająca funkcję.</td></tr>
+<tr><td>Co to currying?</td><td>Zapis wielu argumentów jako kolejnych funkcji jednoargumentowych.</td></tr>
+<tr><td>Co to pattern matching?</td><td>Rozpoznawanie struktury danych i wybieranie pasującego przypadku.</td></tr>
+<tr><td>Co to Prelude?</td><td>Domyślnie importowany standardowy moduł z podstawowymi definicjami.</td></tr>
+<tr><td>Czym różni się kompilator od edytora?</td><td>Kompilator przetwarza kod, a edytor służy do jego pisania.</td></tr>
+</tbody></table></div><footer class="links paper-foot"><a href="04-listy-i-funkcje.html">Poprzedni rozdział</a> </footer></article></div></main></body></html>

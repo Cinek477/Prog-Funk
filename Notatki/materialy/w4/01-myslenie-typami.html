@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="pl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jak zaprojektować typ danych · Haskell</title>
+<link rel="stylesheet" href="../../study.css">
+<script src="../../theme.js" defer></script></head>
+<body><header class="mast"><div class="mast-inner">
+<a href="../../../index.html" class="brand">Haskell / Kurs</a>
+<nav class="site-nav" aria-label="Nawigacja główna"><a href="../index.html" aria-current="page">Materiały</a> <a href="../../quizy/index.html">Quizy</a>
+<button id="theme" type="button" hidden></button></nav>
+</div></header><main class="page"><div class="reader"><nav class="book-nav" aria-label="Rozdziały"><a href="../index.html">Spis wszystkich wykładów</a><h2>Typy algebraiczne</h2><ul class="chapters"><li><a href="README.html">Wprowadzenie</a></li><li><a href="01-myslenie-typami.html" aria-current="page">Jak zaprojektować typ danych</a></li><li><a href="02-drzewa-i-interfejsy.html">Drzewa, instancje i granice modułów</a></li></ul></nav><article class="paper"><p class="eyebrow">Wykład 4 · Typy algebraiczne</p><h1>Jak zaprojektować typ danych</h1><h2>Zacznij od wartości, które chcesz dopuścić</h2>
+<p>Wyobraź sobie wynik równania: może nie mieć rzeczywistych rozwiązań, mieć jeden pierwiastek, dwa albo nieskończenie wiele. Para typu <code>(Double, Double)</code> nie wyraża tych różnic. Nie próbuj kodować braku wyniku przez specjalną liczbę, którą trzeba pamiętać.</p>
+<pre><code>data Roots = NoRoots | OneRoot Double | TwoRoots Double Double | AllReal
+  deriving (Show, Eq)
+
+describe :: Roots -&gt; String
+describe NoRoots        = &quot;Brak rozwiazan&quot;
+describe (OneRoot x)    = &quot;Jeden: &quot; ++ show x
+describe (TwoRoots x y) = &quot;Dwa: &quot; ++ show x ++ &quot;, &quot; ++ show y
+describe AllReal        = &quot;Wszystkie liczby rzeczywiste&quot;</code></pre>
+<p><code>TwoRoots</code> to funkcja dwóch argumentów; <code>TwoRoots 1</code> nadal czeka na drugi argument. <code>NoRoots</code> od razu jest wartością. <code>Roots</code> nie jest konstruktorem wartości — w tej deklaracji występuje tylko jako nazwa typu.</p>
+<h2>Suma wariantów i iloczyn pól</h2>
+<p>Warianty odpowiadają słowu <strong>albo</strong>. Pola jednego wariantu odpowiadają słowu <strong>i</strong>. Dobry test to policzenie możliwości, gdy wszystkie pola są skończone.</p>
+<pre><code>data Example = Off | On Bool Bool</code></pre>
+<p><code>Off</code> daje jedną możliwość. W <code>On</code> każde pole ma dwie możliwości, więc razem jest ich cztery. Typ <code>Example</code> ma zatem pięć zwykłych wartości: <code>1 + 2 * 2</code>. Nie liczymy tu nieokreślonych obliczeń takich jak <code>undefined</code>.</p>
+<h2>Dlaczego nie zawsze Maybe?</h2>
+<p><code>Maybe a</code> jest dobre, gdy wynik może istnieć albo nie. Jeżeli nieobecność ma kilka znaczeń i chcesz je rozróżnić, własny typ przechowa tę informację. Dla równania <code>Nothing</code> nie powie, czy nie ma rozwiązań, czy wejście zostało odrzucone.</p>
+<h2>Oddziel jednostkę od reprezentacji</h2>
+<pre><code>newtype Meters = Meters Double
+newtype Seconds = Seconds Double
+
+speed :: Meters -&gt; Seconds -&gt; Maybe Double
+speed _ (Seconds 0) = Nothing
+speed (Meters d) (Seconds t) = Just (d/t)</code></pre>
+<p>W <code>speed (Meters 100) (Seconds 10)</code> wynik to <code>Just 10.0</code>. Po zamianie argumentów kod nie przejdzie kontroli typów. Z <code>type</code> kompilator widziałby w obu miejscach <code>Double</code>. Natomiast dodatniość czasu to osobna reguła — samo <code>newtype</code> jej nie zapewnia.</p>
+<h2>Pułapka: niepełna obsługa Maybe</h2>
+<pre><code>message :: Show a =&gt; Maybe a -&gt; String
+message (Just x) = show x
+message Nothing  = &quot;Brak wyniku&quot;</code></pre>
+<p>Bez drugiego równania kompilacja zwykle się powiedzie, ale <code>message Nothing</code> zakończy się błędem. W GHCi włącz <code>:set -Wall</code>, żeby wcześniej zobaczyć ostrzeżenie o niepełnych wzorcach.</p><footer class="links paper-foot"><a href="README.html">Poprzedni rozdział</a> <a href="../../quizy/index.html?wyklad=4">Quiz z wykładu 4</a> <a href="02-drzewa-i-interfejsy.html">Następny rozdział</a></footer></article></div></main></body></html>

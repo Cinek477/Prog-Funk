@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="pl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>3. Leniwe wartościowanie · Haskell</title>
+<link rel="stylesheet" href="../../study.css">
+<script src="../../theme.js" defer></script></head>
+<body><header class="mast"><div class="mast-inner">
+<a href="../../../index.html" class="brand">Haskell / Kurs</a>
+<nav class="site-nav" aria-label="Nawigacja główna"><a href="../index.html" aria-current="page">Materiały</a> <a href="../../quizy/index.html">Quizy</a>
+<button id="theme" type="button" hidden></button></nav>
+</div></header><main class="page"><div class="reader"><nav class="book-nav" aria-label="Rozdziały"><a href="../index.html">Spis wszystkich wykładów</a><h2>Listy i rekurencja</h2><ul class="chapters"><li><a href="README.html">Wprowadzenie</a></li><li><a href="01-funkcje.html">Funkcje wielu argumentów</a></li><li><a href="02-listy.html">Listy</a></li><li><a href="03-leniwosc.html" aria-current="page">Leniwe wartościowanie</a></li><li><a href="04-rekurencja.html">Rekurencja</a></li><li><a href="05-pytania-i-cwiczenia.html">Pytania i ćwiczenia</a></li></ul></nav><article class="paper"><p class="eyebrow">Wykład 2 · Listy i rekurencja</p><h1>3. Leniwe wartościowanie</h1><h2>Czy argument jest potrzebny?</h2>
+<pre><code>answer :: Int -&gt; Int -&gt; Int
+answer x y = if x &gt; 0 then 42 else x + y
+
+-- answer 1 undefined daje 42
+-- answer 0 undefined zgłasza błąd</code></pre>
+<p><code>undefined</code> ma dowolny wymagany typ, ale próba uzyskania jego wartości kończy się błędem. Pierwsze wywołanie nie potrzebuje <code>y</code>. W drugim trzeba obliczyć <code>x + y</code>, więc błąd staje się widoczny.</p>
+<p><strong>Nieścisłość</strong> opisuje znaczenie języka: wynik może być dostępny bez obliczania argumentu. <strong>Leniwe wartościowanie</strong> to sposób realizacji: odkładaj obliczenie, wykonaj je, gdy potrzeba, i współdziel wynik. To rozróżnienie między semantyką a implementacją.</p>
+<h2>Thunk i współdzielenie</h2>
+<p><strong>Thunk</strong> to reprezentacja odłożonego obliczenia wraz z potrzebnym środowiskiem. W typowym modelu wykonania GHC współdzielony thunk jest po obliczeniu aktualizowany wynikiem; nie trzeba przeliczać go przy każdym użyciu. Nie jest to automatyczna pamięć podręczna dla wszystkich wywołań funkcji z równymi argumentami.</p>
+<p>Eksperyment w GHCi:</p>
+<pre><code>let x = 1 + 2 :: Int
+let y = x + 1
+:sprint x
+:sprint y
+seq x ()
+:sprint x
+:sprint y</code></pre>
+<p><code>:sprint</code> pokazuje stan obliczenia bez zwykłego wymuszania wartości jak przy wypisywaniu jej w konsoli. <code>_</code> może oznaczać nieobliczoną część. Po wymuszeniu <code>x</code> można zobaczyć <code>x = 3</code>, podczas gdy <code>y</code> pozostaje odłożone. Dokładny obraz zależy od kompilacji i optymalizacji — to ilustracja mechanizmu, nie gwarantowany transkrypt.</p>
+<h2>seq i WHNF</h2>
+<pre><code>seq :: a -&gt; b -&gt; b</code></pre>
+<p><code>seq a b</code> wymusza pierwszy argument do <strong>WHNF</strong>, a następnie zwraca drugi. WHNF to zewnętrzna postać wartości, niekoniecznie pełne obliczenie jej wnętrza.</p>
+<pre><code>seq undefined ()   -- błąd
+seq (1 + 2) ()     -- ()
+seq [undefined] () -- (): wiadomo, że lista jest niepusta
+seq (Just undefined) () -- (): znany konstruktor Just</code></pre>
+<p>Wymuszenie listy do WHNF nie oblicza wszystkich jej elementów. To ważne przy rozumieniu ścisłych akumulatorów.</p>
+<h2>Własne konstrukcje sterujące</h2>
+<pre><code>and2 :: Bool -&gt; Bool -&gt; Bool
+and2 False _ = False
+and2 True y  = y
+
+if&#x27; :: Bool -&gt; a -&gt; a -&gt; a
+if&#x27; True x _  = x
+if&#x27; False _ y = y</code></pre>
+<ul>
+<li><code>and2 False undefined</code> daje <code>False</code>.</li>
+<li><code>and2 undefined False</code> zgłasza błąd: trzeba rozpoznać pierwszy argument, aby wybrać równanie.</li>
+<li><code>if&#x27; True &quot;tak&quot; undefined</code> daje <code>&quot;tak&quot;</code>.</li>
+</ul>
+<p>Leniwość pozwala zwykłym funkcjom pomijać niepotrzebne obliczenia. Kolejność dopasowywania wzorców ma znaczenie także wtedy, gdy końcowy wynik logiczny wydaje się oczywisty.</p>
+<h2>Listy nieskończone i produktywność</h2>
+<pre><code>take 5 [1..] -- [1,2,3,4,5]
+takeWhile (&lt;50) [x*x | x &lt;- [1..]] -- [1,4,9,16,25,36,49]
+head [x | x &lt;- [1..], x `mod` 35 == 0] -- 35</code></pre>
+<p>Obliczenie może się zakończyć, jeżeli do jego wyniku wystarczy skończona praca. Samo użycie <code>head</code> lub <code>take</code> nie daje gwarancji: <code>head (filter (&lt;0) [1..])</code> szuka bez końca.</p>
+<pre><code>length [1..] -- nie kończy się
+[x | x &lt;- [1..], x &lt; 5] -- zwraca początek 1,2,3,4, ale nigdy nie ustala końca
+
+takeWhile (&lt;5) [1..] -- kończy się wynikiem [1,2,3,4]</code></pre>
+<p><code>filter</code> i comprehension z warunkiem nadal szukają kolejnych pasujących elementów. <code>takeWhile</code> kończy na pierwszym niespełnieniu warunku.</p>
+<p><strong>Produktywność:</strong> możliwość wytwarzania kolejnych fragmentów wyniku w skończonej pracy, nawet jeśli całość jest nieskończona.</p>
+<h2>Fibonacci przez korekursję</h2>
+<pre><code>fibs :: [Integer]
+fibs = 0 : 1 : zipWith (+) fibs (tail fibs)
+
+-- take 10 fibs = [0,1,1,2,3,5,8,13,21,34]</code></pre>
+<p><code>zipWith (+)</code> dodaje odpowiadające sobie elementy dwóch list:</p>
+<pre><code>fibs:       0 1 1 2 3 ...
+tail fibs:  1 1 2 3 5 ...
+suma:       1 2 3 5 8 ...</code></pre>
+<p>Do utworzenia kolejnego elementu wystarczają wcześniejsze. To <strong>korekursja</strong>: opisujemy, jak wytwarzać strukturę, zamiast koniecznie zmniejszać ją do przypadku bazowego. <code>Integer</code> zapobiega przepełnieniu typowemu dla ograniczonego <code>Int</code>.</p>
+<p>Leniwość może oszczędzać pracę, ale thunki i zatrzymywane fragmenty struktur zajmują pamięć. Nie jest synonimem równoległego wykonania.</p><footer class="links paper-foot"><a href="02-listy.html">Poprzedni rozdział</a> <a href="../../quizy/index.html?wyklad=2">Quiz z wykładu 2</a> <a href="04-rekurencja.html">Następny rozdział</a></footer></article></div></main></body></html>

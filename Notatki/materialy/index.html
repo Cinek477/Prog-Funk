@@ -1,91 +1,11 @@
 <!doctype html>
-<html lang="pl">
-<head>
-<meta charset="utf-8">
+<html lang="pl"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Haskell · Materiały do nauki</title>
-<style>
-:root{color-scheme:light;font:16px/1.65 'Segoe UI',system-ui,sans-serif;background:#fff;color:#203438;--ink:#203438;--teal:#176458;--muted:#526963;--line:#cfded9;--wash:oklch(97% .012 175);--paper:#fff}
-:root[data-theme="dark"]{--wash:#293639;--paper:#20292c}
-*{box-sizing:border-box}body{margin:0}main{max-width:1060px;margin:auto;padding:2rem clamp(1rem,4vw,2.4rem) 4rem}header{display:flex;align-items:center;justify-content:space-between;gap:1rem;border-bottom:1px solid var(--line);padding-bottom:1.15rem}h1,h2,h3,p{margin:0 0 .65rem}h1{font-size:clamp(1.7rem,5vw,2.5rem);line-height:1.13;letter-spacing:-.04em}h2{font-size:1.5rem;line-height:1.25}h3{font-size:1.08rem}p,li{max-width:72ch}.kicker,.hint{color:var(--muted);font-size:.92rem}a{color:var(--teal);text-underline-offset:.2em}button{font:inherit;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:.5rem;padding:.45rem .8rem;min-height:44px;cursor:pointer}a:focus-visible,summary:focus-visible,button:focus-visible{outline:2px solid var(--teal);outline-offset:3px}
-.layout{display:grid;grid-template-columns: minmax(9rem, 1fr) minmax(0, 3.4fr);gap:clamp(1rem,5vw,4rem);margin-top:2rem}.contents{align-self:start;position:sticky;top:1rem;border-left:3px solid var(--teal);padding-left:1rem}.contents a{display:block;padding:.42rem 0}.intro{margin-bottom:1.6rem}.lesson{padding:1.4rem 0 1.65rem;border-top:1px solid var(--line);scroll-margin-top:1rem}.links{display:flex;flex-wrap:wrap;gap:.45rem 1rem;margin-top:1rem}.lesson .label{font-weight:650;font-size:.86rem;color:var(--teal);margin:0 0 .25rem}
-pre,code{font-family:Consolas,'Cascadia Code',monospace}pre{white-space:pre-wrap;overflow-wrap:anywhere;padding:1rem 1.1rem;background:var(--wash);border-left:3px solid var(--teal);border-radius:0 .45rem .45rem 0;margin:.8rem 0 1rem;line-height:1.55}details{margin:.65rem 0;border:1px solid var(--line);border-radius:.55rem;background:var(--paper)}summary{cursor:pointer;font-weight:600;min-height:44px;padding:.65rem .85rem}details>div{padding:0 .85rem .75rem}details p:last-child{margin-bottom:0}.steps{padding-left:1.2rem}.steps li{margin:.45rem 0}
-@media(max-width:680px){header{flex-wrap:wrap}.layout{grid-template-columns:minmax(0,1fr);margin-top:1.25rem}.contents{position:static}.contents a{display:inline-block;margin-right:1rem}.intro{margin-bottom:1rem}}
-</style>
-<link rel="stylesheet" href="../theme.css">
-<script src="../theme.js" defer></script>
-</head>
-<body>
-<main>
-<header>
- <div><p class="kicker">Programowanie funkcyjne · wykłady 1–4</p><h1>Materiały do nauki</h1></div>
- <nav class="site-nav" aria-label="Nawigacja"><a href="../quizy/index.html">Quizy</a><button type="button" id="theme" hidden></button></nav>
-</header>
-<div class="layout">
- <nav class="contents" aria-label="Spis wykładów"><strong>Przejdź do tematu</strong>
- <a href="#w1">1. Podstawy</a><a href="#w2">2. Listy i rekurencja</a><a href="#w3">3. Funkcje i foldy</a><a href="#w4">4. Typy i klasy</a></nav>
- <div>
- <p class="intro">Przeczytaj przykład, spróbuj przewidzieć wynik, a dopiero potem rozwiń odpowiedź. Po każdym wykładzie możesz przejść do odpowiedniego zestawu pytań.</p>
- <section class="lesson" id="w1" aria-labelledby="h-w1">
- <p class="label">Wykład 1</p><h2 id="h-w1">Podstawy składni i typów</h2>
- <p>Wiązania w Haskellu się nie zmieniają. Funkcje wywołujesz spacjami, a aplikacja wiąże mocniej niż operatory. Obie gałęzie <code>if</code> muszą mieć ten sam typ. GHC jest kompilatorem; w konsoli GHCi użyjesz <code>:type</code>, by zobaczyć typ wyrażenia.</p>
- <pre><code>sign n
-  | n &lt; 0     = -1
-  | n == 0    = 0
-  | otherwise = 1</code></pre>
- <details><summary>Skąd się bierze typ funkcji z <code>==</code>?</summary><div><p>Dla <code>same x y = x == y</code> otrzymujesz <code>Eq a =&gt; a -&gt; a -&gt; Bool</code>. Operator wymaga dwóch wartości tego samego typu i instancji <code>Eq</code>.</p></div></details>
- <details><summary>Sprawdź się: <code>square 2 + 3</code> przy <code>square x = x*x</code></summary><div><p><strong>7</strong>. Najpierw <code>square 2</code>, potem dodawanie. Dla wyniku 25 zapisz <code>square (2+3)</code>.</p></div></details>
- <div class="links"><a href="../quizy/index.html?wyklad=1">Quiz z wykładu 1</a><a href="https://github.com/Cinek477/Prog-Funk/tree/main/Notatki/w1">Pełne notatki</a></div>
- </section>
- <section class="lesson" id="w2" aria-labelledby="h-w2">
- <p class="label">Wykład 2</p><h2 id="h-w2">Listy, leniwość i rekurencja</h2>
- <p><code>a -&gt; b -&gt; c</code> oznacza <code>a -&gt; (b -&gt; c)</code>. Podanie jednego argumentu może zwrócić funkcję. Listę rozbijasz na <code>[]</code> albo <code>(x:xs)</code>. Z <code>take</code> możesz pobrać skończony fragment listy nieskończonej.</p>
- <pre><code>sumOwn [] = 0
-sumOwn (x:xs) = x + sumOwn xs
-
-[x*x | x &lt;- [1..6], even x]   -- [4,16,36]</code></pre>
- <details><summary>Dlaczego <code>take 1 (7 : undefined)</code> nie zgłasza błędu?</summary><div><p>Wynik to <code>[7]</code>. Pierwszy element jest dostępny; nie trzeba wymuszać ogona. Podobnie WHNF listy rozróżnia <code>[]</code> od <code>(:)</code>, bez liczenia elementów.</p></div></details>
- <details><summary>Sprawdź się: <code>(2 ^) 3</code> i <code>(^ 2) 3</code></summary><div><p>Odpowiednio <strong>8</strong> i <strong>9</strong>. Pierwsza sekcja ustala podstawę, druga wykładnik.</p></div></details>
- <div class="links"><a href="../quizy/index.html?wyklad=2">Quiz z wykładu 2</a><a href="https://github.com/Cinek477/Prog-Funk/tree/main/Notatki/w2">Pełne notatki</a></div>
- </section>
- <section class="lesson" id="w3" aria-labelledby="h-w3">
- <p class="label">Wykład 3</p><h2 id="h-w3">Funkcje wyższego rzędu i foldy</h2>
- <p><code>map</code> zmienia elementy, <code>filter</code> je wybiera, a fold zbiera wynik. <code>zipWith</code> łączy odpowiadające sobie elementy i kończy na krótszej liście. <code>concat</code> usuwa jedną warstwę list. Złożenie czytaj od prawej: poniżej filtr → kwadraty → suma.</p>
- <pre><code>sum . map (^2) . filter even $ [1..5]  -- 20
-
-foldr1 (-) [1,2,3,4] -- 1 - (2 - (3 - 4))
-foldl1 (-) [1,2,3,4] -- ((1 - 2) - 3) - 4</code></pre>
- <details><summary>„Od prawej” — czy odwracamy listę?</summary><div><p>Nie. Liczby dalej stoją w kolejności 1, 2, 3, 4. Nawiasy w <code>foldr1</code> zagnieżdżają się z prawej: <code>3-4=-1</code>, potem <code>2-(-1)=3</code>, na końcu <code>1-3=-2</code>.</p></div></details>
- <details><summary>Sprawdź się: <code>map even [1,2,3]</code> kontra <code>filter even [1,2,3]</code></summary><div><p>Pierwsze daje <code>[False,True,False]</code>, drugie <code>[2]</code>. <code>filter</code> zachowuje oryginalne elementy.</p></div></details>
- <div class="links"><a href="../quizy/index.html?wyklad=3">Quiz z wykładu 3</a><a href="https://github.com/Cinek477/Prog-Funk/tree/main/Notatki/w3">Pełne notatki</a></div>
- </section>
- <section class="lesson" id="w4" aria-labelledby="h-w4">
- <p class="label">Wykład 4</p><h2 id="h-w4">Typy algebraiczne, klasy i moduły</h2>
- <ol class="steps">
- <li><code>type</code> nadaje drugą nazwę temu samemu typowi; <code>newtype</code> odróżnia go przy jednym konstruktorze i polu; <code>data</code> pozwala na wiele wariantów i pól.</li>
- <li>Konstruktor z polami to funkcja. Dopasowanie wzorca rozkłada wartość na pola. Selektor rekordu jest funkcją; aktualizacja rekordu zwraca nową wartość.</li>
- <li><code>Maybe</code> wyraża możliwość braku wyniku. Drzewa i drzewa wyrażeń opisujesz rekurencyjnie.</li>
- <li><code>class</code> określa metody, <code>instance</code> ich zachowanie dla konkretnego typu. <code>deriving</code> może wygenerować standardową instancję.</li>
- <li>Lista eksportu modułu określa, czy użytkownik może użyć konstruktora, czy tylko publicznych operacji.</li>
- </ol>
- <pre><code>data Shape = Circle Double | Rect Double Double
-  deriving (Show, Eq, Ord)
-
-area (Circle r) = pi*r*r
-area (Rect w h) = w*h
-
-safeHead []    = Nothing
-safeHead (x:_) = Just x</code></pre>
- <details><summary>Co zwraca <code>maximum [Circle 3, Rect 1 1]</code>?</summary><div><p><code>Rect 1.0 1.0</code>. Automatyczne <code>Ord</code> porównuje najpierw kolejność deklaracji konstruktorów. Jeżeli chcesz porównywać pola powierzchni, jawnie użyj <code>area</code> jako klucza.</p></div></details>
- <details><summary>Jak odróżnić klasę od instancji?</summary><div><p><code>class HasArea a</code> mówi, że istnieje operacja <code>area</code>. <code>instance HasArea Disk</code> określa wzór dla dysku. Dla klasy <code>Ord</code> typ musi mieć również instancję <code>Eq</code>.</p></div></details>
- <details><summary>Jak przejść po drzewie krok po kroku?</summary><div><pre><code>data Tree a = Empty | Node (Tree a) a (Tree a)
-size Empty = 0
-size (Node l _ r) = 1 + size l + size r</code></pre><p><code>size</code> schodzi do obu poddrzew. Wstawianie do BST wybiera tylko jedną stronę: mniejsze w lewo, większe w prawo. Sam konstruktor <code>Node</code> nie pilnuje porządku, więc można go ukryć w module.</p></div></details>
- <details><summary>Sprawdź się: co oznacza eksport <code>Stack</code> zamiast <code>Stack(..)</code>?</summary><div><p>Widać nazwę typu, ale poza modułem nie można tworzyć wartości przez konstruktor <code>Stack</code> ani używać go we wzorcu. Zamiast tego używasz funkcji <code>empty</code>, <code>push</code> i <code>pop</code>.</p></div></details>
- <div class="links"><a href="../quizy/index.html?wyklad=4">Quiz z wykładu 4</a><a href="https://github.com/Cinek477/Prog-Funk/blob/main/Notatki/w4/README.md">Pełne notatki i przykłady</a></div>
- </section>
- </div>
-</div>
-</main>
-</body>
-</html>
+<title>Materiały · Haskell</title>
+<link rel="stylesheet" href="../study.css">
+<script src="../theme.js" defer></script></head>
+<body><header class="mast"><div class="mast-inner">
+<a href="../../index.html" class="brand">Haskell / Kurs</a>
+<nav class="site-nav" aria-label="Nawigacja główna"><a href="index.html" aria-current="page">Materiały</a> <a href="../quizy/index.html">Quizy</a>
+<button id="theme" type="button" hidden></button></nav>
+</div></header><main class="page"><h1>Materiały do nauki</h1><p class="lead">Pełne rozdziały, przykłady i ćwiczenia do wykładów 1–4.</p><div class="catalog"><section class="lecture" id="w1"><div><p class="eyebrow">Wykład 1</p><h2>Podstawy Haskella</h2><p>Czyste funkcje, składnia, typy i pierwsze kroki w GHCi.</p><a href="../quizy/index.html?wyklad=1">Quiz z wykładu 1</a></div><ul class="chapters"><li><a href="w1/README.html">Wprowadzenie</a></li><li><a href="w1/01-myslenie-funkcyjne.html">Myślenie funkcyjne</a></li><li><a href="w1/02-skladnia-i-definicje.html">Składnia i definicje</a></li><li><a href="w1/03-typy.html">Typy</a></li><li><a href="w1/05-praktyka-i-sciaga.html">Praca z kodem i ściąga</a></li></ul></section><section class="lecture" id="w2"><div><p class="eyebrow">Wykład 2</p><h2>Listy i rekurencja</h2><p>Aplikacja częściowa, leniwość, praca z listami i akumulatory.</p><a href="../quizy/index.html?wyklad=2">Quiz z wykładu 2</a></div><ul class="chapters"><li><a href="w2/README.html">Wprowadzenie</a></li><li><a href="w2/01-funkcje.html">Funkcje wielu argumentów</a></li><li><a href="w2/02-listy.html">Listy</a></li><li><a href="w2/03-leniwosc.html">Leniwe wartościowanie</a></li><li><a href="w2/04-rekurencja.html">Rekurencja</a></li><li><a href="w2/05-pytania-i-cwiczenia.html">Pytania i ćwiczenia</a></li></ul></section><section class="lecture" id="w3"><div><p class="eyebrow">Wykład 3</p><h2>Funkcje wyższego rzędu</h2><p>Lambdy, map, filter, foldy i przetwarzanie kolekcji.</p><a href="../quizy/index.html?wyklad=3">Quiz z wykładu 3</a></div><ul class="chapters"><li><a href="w3/README.html">Wprowadzenie</a></li><li><a href="w3/01-funkcje-wyzszego-rzedu.html">Funkcje wyższego rzędu, lambdy i domknięcia</a></li><li><a href="w3/02-skladanie-i-aplikacja.html">Składanie funkcji oraz operatory . i $</a></li><li><a href="w3/03-przetwarzanie-list.html">map, filter, zipWith, unzip i concat</a></li><li><a href="w3/04-foldy.html">Foldy — foldr, foldl, foldl&#x27; i wersje bez wartości początkowej</a></li><li><a href="w3/05-pipeline.html">Collection Pipeline — proces z małych funkcji</a></li><li><a href="w3/06-cwiczenia.html">Ćwiczenia — najpierw samodzielnie, potem sprawdź</a></li><li><a href="w3/07-sciaga.html">Ściąga — wykład 3</a></li></ul></section><section class="lecture" id="w4"><div><p class="eyebrow">Wykład 4</p><h2>Typy algebraiczne</h2><p>Konstruktory, Maybe, drzewa, klasy typów i moduły.</p><a href="../quizy/index.html?wyklad=4">Quiz z wykładu 4</a></div><ul class="chapters"><li><a href="w4/README.html">Wprowadzenie</a></li><li><a href="w4/01-myslenie-typami.html">Jak zaprojektować typ danych</a></li><li><a href="w4/02-drzewa-i-interfejsy.html">Drzewa, instancje i granice modułów</a></li></ul></section><section class="lecture" id="uzupelnienia"><div><p class="eyebrow">Dodatki</p><h2>Materiały uzupełniające</h2><p>Narzędzia Haskella i dodatkowe przykłady pracy z listami.</p></div><ul class="chapters"><li><a href="uzupelnienia/README.html">Wprowadzenie</a></li><li><a href="uzupelnienia/04-listy-i-funkcje.html">Listy, rekurencja i funkcje wyższego rzędu</a></li><li><a href="uzupelnienia/06-narzedzia-i-mechanizmy.html">Narzędzia i mechanizmy Haskella — co to jest?</a></li></ul></section></div></main></body></html>

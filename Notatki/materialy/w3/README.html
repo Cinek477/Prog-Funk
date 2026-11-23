@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="pl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wykład 3 — funkcje wyższego rzędu i przetwarzanie kolekcji · Haskell</title>
+<link rel="stylesheet" href="../../study.css">
+<script src="../../theme.js" defer></script></head>
+<body><header class="mast"><div class="mast-inner">
+<a href="../../../index.html" class="brand">Haskell / Kurs</a>
+<nav class="site-nav" aria-label="Nawigacja główna"><a href="../index.html" aria-current="page">Materiały</a> <a href="../../quizy/index.html">Quizy</a>
+<button id="theme" type="button" hidden></button></nav>
+</div></header><main class="page"><div class="reader"><nav class="book-nav" aria-label="Rozdziały"><a href="../index.html">Spis wszystkich wykładów</a><h2>Funkcje wyższego rzędu</h2><ul class="chapters"><li><a href="README.html" aria-current="page">Wprowadzenie</a></li><li><a href="01-funkcje-wyzszego-rzedu.html">Funkcje wyższego rzędu, lambdy i domknięcia</a></li><li><a href="02-skladanie-i-aplikacja.html">Składanie funkcji oraz operatory . i $</a></li><li><a href="03-przetwarzanie-list.html">map, filter, zipWith, unzip i concat</a></li><li><a href="04-foldy.html">Foldy — foldr, foldl, foldl&#x27; i wersje bez wartości początkowej</a></li><li><a href="05-pipeline.html">Collection Pipeline — proces z małych funkcji</a></li><li><a href="06-cwiczenia.html">Ćwiczenia — najpierw samodzielnie, potem sprawdź</a></li><li><a href="07-sciaga.html">Ściąga — wykład 3</a></li></ul></nav><article class="paper"><p class="eyebrow">Wykład 3 · Funkcje wyższego rzędu</p><h1>Wykład 3 — funkcje wyższego rzędu i przetwarzanie kolekcji</h1><p><a href="../index.html">Wszystkie wykłady</a> · <a href="../w2/README.html">Wykład 2</a> · <a href="../../quizy/index.html">Quizy</a></p>
+<p>Materiały opracowane na podstawie <code>fp-w3.pdf</code> (17 slajdów, ułożonych na 3 stronach PDF). Wyjaśnienia i ćwiczenia są rozszerzeniem treści slajdów, bez historii i spraw organizacyjnych.</p>
+<h2>Od czego zacząć?</h2>
+<div class="table-wrap"><table><thead><tr><th scope="col">Kolejność</th><th scope="col">Materiał</th><th scope="col">Po przeczytaniu potrafisz…</th></tr></thead><tbody>
+<tr><td>1</td><td><a href="01-funkcje-wyzszego-rzedu.html">Funkcje wyższego rzędu, lambdy, domknięcia</a></td><td>przekazać funkcję jako argument i odczytać jej typ</td></tr>
+<tr><td>2</td><td><a href="02-skladanie-i-aplikacja.html">Składanie funkcji, operatory . i $</a></td><td>odróżnić tworzenie funkcji od jej wywołania</td></tr>
+<tr><td>3</td><td><a href="03-przetwarzanie-list.html">map, filter, zipWith i concat</a></td><td>dobrać operację do przekształcenia danych</td></tr>
+<tr><td>4</td><td><a href="04-foldy.html">foldr, foldl i foldl\&#x27;</a></td><td>ręcznie rozwinąć fold i dobrać akumulator</td></tr>
+<tr><td>5</td><td><a href="05-pipeline.html">Collection Pipeline — przykład krok po kroku</a></td><td>złożyć cały proces i sprawdzić przypadki brzegowe</td></tr>
+<tr><td>6</td><td><a href="06-cwiczenia.html">Ćwiczenia i rozwiązania</a></td><td>przećwiczyć typy, wyniki i uzupełnianie kodu</td></tr>
+<tr><td>Powtórka</td><td><a href="07-sciaga.html">Ściąga</a></td><td>szybko przypomnieć typy, kolejność argumentów i pułapki</td></tr>
+</tbody></table></div>
+<h2>Najważniejsza idea</h2>
+<p>Zamiast pisać nową rekurencję dla każdego zadania, przekazujemy różnicę jako funkcję:</p>
+<pre><code>sumSquares xs = sum (map (^2) xs)</code></pre>
+<p><code>map</code> odpowiada za przechodzenie listy, <code>(^2)</code> za pojedynczą zmianę, a <code>sum</code> za zebranie wyniku. Dalej nauczysz się zapisywać i czytać takie procesy.</p>
+<h2>Gotowy kod</h2>
+<p><a href="../../w3/Przyklady.hs">Przyklady.hs</a> zawiera działające definicje oraz sprawdzane przykłady. W terminalu, z głównego folderu projektu:</p>
+<pre><code>runghc Notatki/w3/Przyklady.hs</code></pre>
+<p>W GHCi:</p>
+<pre><code>:load Notatki/w3/Przyklady.hs
+:type sumWith
+:type foldrOwn
+formatNames &quot;tomasz t bogdan anna&quot;
+main</code></pre>
+<p>Przykłady w rozdziałach są niezależne; nie kopiuj alternatywnych definicji tej samej nazwy razem. Typy funkcji bibliotecznych podajemy głównie w wersji dla list. GHCi może pokazać szerszy typ z <code>Foldable</code>, np. dla <code>foldr</code>, <code>sum</code> czy <code>concat</code> — nie jest to sprzeczność.</p>
+<h2>Plan nauki na około godzinę</h2>
+<ul>
+<li>15 minut: rozdziały 1–2; rozpisz ręcznie dwa wywołania i dwa typy.</li>
+<li>20 minut: <code>map</code>/<code>filter</code> i foldy; koniecznie porównaj odejmowanie w <code>foldr</code> i <code>foldl</code>.</li>
+<li>10 minut: prześledź formatowanie tekstu na kolejnych etapach.</li>
+<li>15 minut: rozwiąż ćwiczenia bez podglądania, potem zrób quiz z wyborem „Wykład 3”.</li>
+</ul><footer class="links paper-foot"><a href="../../quizy/index.html?wyklad=3">Quiz z wykładu 3</a> <a href="01-funkcje-wyzszego-rzedu.html">Następny rozdział</a></footer></article></div></main></body></html>

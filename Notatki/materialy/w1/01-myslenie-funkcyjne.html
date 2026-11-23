@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="pl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>1. Myślenie funkcyjne · Haskell</title>
+<link rel="stylesheet" href="../../study.css">
+<script src="../../theme.js" defer></script></head>
+<body><header class="mast"><div class="mast-inner">
+<a href="../../../index.html" class="brand">Haskell / Kurs</a>
+<nav class="site-nav" aria-label="Nawigacja główna"><a href="../index.html" aria-current="page">Materiały</a> <a href="../../quizy/index.html">Quizy</a>
+<button id="theme" type="button" hidden></button></nav>
+</div></header><main class="page"><div class="reader"><nav class="book-nav" aria-label="Rozdziały"><a href="../index.html">Spis wszystkich wykładów</a><h2>Podstawy Haskella</h2><ul class="chapters"><li><a href="README.html">Wprowadzenie</a></li><li><a href="01-myslenie-funkcyjne.html" aria-current="page">Myślenie funkcyjne</a></li><li><a href="02-skladnia-i-definicje.html">Składnia i definicje</a></li><li><a href="03-typy.html">Typy</a></li><li><a href="05-praktyka-i-sciaga.html">Praca z kodem i ściąga</a></li></ul></nav><article class="paper"><p class="eyebrow">Wykład 1 · Podstawy Haskella</p><h1>1. Myślenie funkcyjne</h1><h2>Program jako obliczanie wartości</h2>
+<p>W podejściu imperatywnym opisujesz kolejne zmiany stanu, np. zwiększanie licznika i aktualizowanie sumy. W podejściu funkcyjnym opisujesz wartości oraz funkcje, które przekształcają jedne wartości w inne.</p>
+<pre><code>sum [1..10]  -- 55</code></pre>
+<p><code>[1..10]</code> oznacza listę liczb od 1 do 10, a <code>sum</code> oblicza sumę jej elementów. Nie trzeba samodzielnie tworzyć zmiennej akumulatora i pętli.</p>
+<h2>Czyste funkcje</h2>
+<p>Czysta funkcja wyznacza wynik na podstawie argumentów, bez obserwowalnych efektów ubocznych. Dla tych samych argumentów daje ten sam wynik, o ile obliczenie kończy się poprawnie.</p>
+<pre><code>double :: Int -&gt; Int
+double x = 2 * x</code></pre>
+<p><code>double 4</code> daje <code>8</code>. Obliczenie nie zmienia globalnej zmiennej ani nie wypisuje tekstu. Odczyt pliku, komunikacja z użytkownikiem i losowanie wymagają osobnego opisania efektów; w Haskellu służy do tego m.in. typ <code>IO</code>.</p>
+<p><strong>Przezroczystość referencyjna:</strong> wyrażenie można zastąpić jego wartością bez zmiany znaczenia programu. Zamiast <code>double 4 + 1</code> można rozważyć <code>8 + 1</code>.</p>
+<h2>Niezmienność</h2>
+<pre><code>x = 5
+y = x + 1</code></pre>
+<p><code>x = 5</code> wiąże nazwę z wartością. Nie jest poleceniem zmiany zawartości komórki pamięci. Nie można potem przypisać tej samej nazwie w tym samym zakresie wartości <code>6</code>.</p>
+<p>Dlatego zapis <code>x = x + 1</code> nie zwiększa licznika. Jest definicją rekurencyjną, która dla zwykłych liczb nie daje użytecznego wyniku. Kolejne etapy obliczeń opisuje się nowymi wartościami, wywołaniami funkcji i rekurencją.</p>
+<h2>Funkcje są wartościami</h2>
+<p>Funkcję można przekazać jako argument, zwrócić jako wynik i umieścić w strukturze danych.</p>
+<pre><code>map double [1, 2, 3]  -- [2,4,6]</code></pre>
+<p><code>map</code> przyjmuje funkcję i listę. Stosuje przekazaną funkcję do każdego elementu. Takie funkcje nazywamy <strong>funkcjami wyższego rzędu</strong>.</p>
+<h2>Leniwe obliczanie</h2>
+<p>Haskell domyślnie oblicza wyrażenia wtedy, gdy ich wartość jest potrzebna.</p>
+<pre><code>first x _ = x
+first 7 (1 `div` 0)  -- 7
+
+take 5 [1..]        -- [1,2,3,4,5]</code></pre>
+<p><code>_</code> oznacza ignorowany argument. Pierwsza funkcja nie potrzebuje drugiego argumentu, więc nie wykonuje dzielenia przez zero. <code>[1..]</code> opisuje nieskończoną listę, ale <code>take 5</code> potrzebuje tylko pięciu elementów.</p>
+<p>Leniwość nie gwarantuje zakończenia obliczeń. <code>sum [1..]</code> nie zwróci skończonego wyniku. Nie gwarantuje też małego zużycia pamięci: odkładane obliczenia mogą się gromadzić.</p>
+<h2>Wyrażenia zamiast instrukcji</h2>
+<p>Wyrażenie ma wartość i typ. Wywołanie funkcji, <code>if</code>, <code>case</code> oraz <code>let ... in</code> są wyrażeniami.</p>
+<pre><code>result = 10 + (if True then 2 else 3)  -- 12</code></pre>
+<p>Obie gałęzie <code>if</code> są obowiązkowe i muszą mieć zgodny typ, ponieważ całe wyrażenie musi mieć jeden typ.</p><footer class="links paper-foot"><a href="README.html">Poprzedni rozdział</a> <a href="../../quizy/index.html?wyklad=1">Quiz z wykładu 1</a> <a href="02-skladnia-i-definicje.html">Następny rozdział</a></footer></article></div></main></body></html>

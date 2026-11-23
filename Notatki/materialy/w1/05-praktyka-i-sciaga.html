@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="pl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>5. Praca z kodem i ściąga · Haskell</title>
+<link rel="stylesheet" href="../../study.css">
+<script src="../../theme.js" defer></script></head>
+<body><header class="mast"><div class="mast-inner">
+<a href="../../../index.html" class="brand">Haskell / Kurs</a>
+<nav class="site-nav" aria-label="Nawigacja główna"><a href="../index.html" aria-current="page">Materiały</a> <a href="../../quizy/index.html">Quizy</a>
+<button id="theme" type="button" hidden></button></nav>
+</div></header><main class="page"><div class="reader"><nav class="book-nav" aria-label="Rozdziały"><a href="../index.html">Spis wszystkich wykładów</a><h2>Podstawy Haskella</h2><ul class="chapters"><li><a href="README.html">Wprowadzenie</a></li><li><a href="01-myslenie-funkcyjne.html">Myślenie funkcyjne</a></li><li><a href="02-skladnia-i-definicje.html">Składnia i definicje</a></li><li><a href="03-typy.html">Typy</a></li><li><a href="05-praktyka-i-sciaga.html" aria-current="page">Praca z kodem i ściąga</a></li></ul></nav><article class="paper"><p class="eyebrow">Wykład 1 · Podstawy Haskella</p><h1>5. Praca z kodem i ściąga</h1><h2>Plik a konsola GHCi</h2>
+<p>Kod źródłowy zapisujesz w plikach <code>.hs</code>. GHC jest kompilatorem, GHCi interaktywną konsolą, a <code>runghc</code> pozwala uruchomić plik bez osobnego kroku budowania programu.</p>
+<p>Po udostępnieniu tych narzędzi w środowisku uruchom w terminalu:</p>
+<pre><code>ghci</code></pre>
+<p>W GHCi można obliczać wyrażenia i sprawdzać typy:</p>
+<pre><code>:type not
+:type map
+:info Int
+:load Lab1.hs
+:reload
+main
+:quit</code></pre>
+<p><code>:type</code> (skrót <code>:t</code>) pokazuje typ, <code>:info</code> informacje o nazwie, <code>:load</code> (<code>:l</code>) ładuje plik, a <code>:reload</code> (<code>:r</code>) wczytuje go po zmianach. W razie problemu ze znalezieniem pliku użyj pełnej ścieżki w cudzysłowie.</p>
+<p>W GHCi można utworzyć krótką definicję przez <code>let square x = x * x</code>. W pliku na najwyższym poziomie piszesz po prostu <code>square x = x * x</code>, bez <code>let</code>.</p>
+<p>Samą funkcję <code>square</code> można wczytać bez definiowania <code>main</code>. Uruchamialny program potrzebuje punktu wejścia:</p>
+<pre><code>main :: IO ()
+main = putStrLn &quot;Czesc!&quot;</code></pre>
+<p><code>IO ()</code> opisuje akcję wejścia/wyjścia, która po wykonaniu nie dostarcza użytecznego wyniku obliczeniowego. <code>putStrLn</code> wypisuje tekst i kończy linię.</p>
+<pre><code>main :: IO ()
+main = do
+  putStrLn &quot;Podaj imie:&quot;
+  name &lt;- getLine
+  putStrLn (&quot;Czesc, &quot; ++ name ++ &quot;!&quot;)</code></pre>
+<p><code>do</code> pozwala zapisać sekwencję akcji. Tutaj <code>&lt;-</code> wiąże nazwę <code>name</code> z wynikiem akcji <code>getLine</code>. Nie jest przypisaniem zmieniającym istniejącą zmienną. W pliku może być tylko jedna z pokazanych definicji <code>main</code>.</p>
+<p>Uruchomienie pliku w terminalu:</p>
+<pre><code>runghc Lab1.hs</code></pre>
+<p>Kompilacja i uruchomienie w PowerShell:</p>
+<pre><code>ghc Lab1.hs -o lab1
+.\lab1.exe</code></pre>
+<h2>Najczęstsze błędy</h2>
+<div class="table-wrap"><table><thead><tr><th scope="col">Problem</th><th scope="col">Poprawny zapis lub wyjaśnienie</th></tr></thead><tbody>
+<tr><td><code>f(x,y)</code> przy definicji <code>f x y</code></td><td><code>f x y</code>; krotka jest jednym argumentem</td></tr>
+<tr><td><code>x = 3</code> użyte jako test</td><td>test równości to <code>x == 3</code></td></tr>
+<tr><td><code>if p then a</code></td><td>potrzebne jest również <code>else b</code></td></tr>
+<tr><td><code>if p then 1 else False</code></td><td>gałęzie muszą mieć zgodny typ</td></tr>
+<tr><td><code>[1, True]</code></td><td>elementy listy muszą mieć jeden typ; użyj krotki, jeśli opisujesz różne pola</td></tr>
+<tr><td><code>1 ++ [2,3]</code></td><td><code>1 : [2,3]</code> lub <code>[1] ++ [2,3]</code></td></tr>
+<tr><td><code>square -3</code></td><td>ujemny argument zapisz jako <code>square (-3)</code></td></tr>
+<tr><td><code>Int</code> dodany do <code>Double</code></td><td>jawna konwersja, np. <code>fromIntegral n + x</code></td></tr>
+<tr><td>nieobsłużona pusta lista</td><td>dodaj przypadek <code>[]</code></td></tr>
+<tr><td>błędne wcięcia</td><td>wyrównaj definicje należące do tego samego bloku</td></tr>
+</tbody></table></div>
+<h2>Ściąga ze składni</h2>
+<pre><code>-- sygnatura i definicja
+inc :: Int -&gt; Int
+inc x = x + 1
+
+-- warunek
+absolute x = if x &gt;= 0 then x else -x
+
+-- guards
+sign x
+  | x &lt; 0     = -1
+  | x == 0    = 0
+  | otherwise = 1
+
+-- wzorce list
+isEmpty [] = True
+isEmpty _  = False
+
+-- definicja lokalna
+squarePlusOne x = y + 1
+  where
+    y = x * x
+
+-- lokalne wyrażenie
+example = let x = 2 in x + 3
+
+-- lambda
+squares = map (\x -&gt; x * x) [1..5]</code></pre>
+<h2>Ćwiczenia</h2>
+<p>Spróbuj rozwiązać je przed przeczytaniem odpowiedzi.</p>
+<ol start="1">
+<li>Jaka jest różnica między <code>f x y</code> i <code>f (x,y)</code>?</li>
+<li>Oblicz <code>map (+1) (filter even [1..6])</code>.</li>
+<li>Zapisz funkcję <code>maxTwo</code>, która zwraca większy z dwóch argumentów. Użyj <code>if</code>.</li>
+<li>Zapisz rekurencyjną funkcję mnożącą elementy listy. Dla pustej listy przyjmij wynik <code>1</code>.</li>
+<li>Wywnioskuj typ <code>pair x = (x, x)</code>.</li>
+<li>Wyjaśnij, dlaczego <code>bad x = if x then 1 else &quot;nie&quot;</code> jest błędne.</li>
+<li>Zapisz funkcję obliczającą sumę kwadratów nieparzystych liczb z listy.</li>
+<li>Jaki wynik daje <code>take 3 (map (*2) [1..])</code> i dlaczego obliczenie się kończy?</li>
+</ol>
+<details><summary>Odpowiedzi</summary>
+<ol start="1">
+<li>Pierwszy zapis podaje argumenty kolejno; drugi podaje jedną krotkę. Wymagają różnych typów funkcji.</li>
+<li>Najpierw <code>[2,4,6]</code>, następnie <code>[3,5,7]</code>.</li>
+<li>Przykładowa definicja:</li>
+</ol>
+<pre><code>maxTwo :: Ord a =&gt; a -&gt; a -&gt; a
+maxTwo x y = if x &gt;= y then x else y</code></pre>
+<ol start="4">
+<li>Iloczyn pustej listy to element neutralny mnożenia:</li>
+</ol>
+<pre><code>productList :: Num a =&gt; [a] -&gt; a
+productList []     = 1
+productList (x:xs) = x * productList xs</code></pre>
+<ol start="5">
+<li><code>pair :: a -&gt; (a, a)</code>. Oba pola zawierają wartość tego samego typu.</li>
+<li>Warunek wymusza <code>x :: Bool</code>, ale problemem są różne typy gałęzi: liczba i <code>String</code>.</li>
+<li>Przykładowa definicja:</li>
+</ol>
+<pre><code>sumOddSquares :: [Int] -&gt; Int
+sumOddSquares xs = sum (map (\x -&gt; x * x) (filter odd xs))</code></pre>
+<ol start="8">
+<li><code>[2,4,6]</code>. Dzięki leniwemu obliczaniu potrzebny jest tylko początek nieskończonej listy.</li>
+</ol>
+</details>
+<h2>Co powinno być jasne po przeczytaniu</h2>
+<ul>
+<li>Dlaczego <code>=</code> definiuje wartość, a <code>==</code> ją porównuje.</li>
+<li>Jak przeczytać <code>Eq a =&gt; a -&gt; a -&gt; Bool</code>.</li>
+<li>Jak wywołać funkcję i kiedy użyć nawiasów.</li>
+<li>Jak rozdzielić dane wzorcami oraz warunkami.</li>
+<li>Jak definiować pomocnicze wartości przez <code>where</code> i <code>let</code>.</li>
+<li>Jak rozbić listę na <code>[]</code> i <code>x:xs</code>.</li>
+<li>Jak zastąpić prostą pętlę przez rekurencję, <code>map</code>, <code>filter</code> lub składanie funkcji.</li>
+<li>Jak sprawdzić typ i wczytać plik w GHCi.</li>
+</ul><footer class="links paper-foot"><a href="03-typy.html">Poprzedni rozdział</a> <a href="../../quizy/index.html?wyklad=1">Quiz z wykładu 1</a></footer></article></div></main></body></html>

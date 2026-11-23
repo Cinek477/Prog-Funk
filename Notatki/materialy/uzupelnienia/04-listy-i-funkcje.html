@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="pl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>4. Listy, rekurencja i funkcje wyższego rzędu · Haskell</title>
+<link rel="stylesheet" href="../../study.css">
+<script src="../../theme.js" defer></script></head>
+<body><header class="mast"><div class="mast-inner">
+<a href="../../../index.html" class="brand">Haskell / Kurs</a>
+<nav class="site-nav" aria-label="Nawigacja główna"><a href="../index.html" aria-current="page">Materiały</a> <a href="../../quizy/index.html">Quizy</a>
+<button id="theme" type="button" hidden></button></nav>
+</div></header><main class="page"><div class="reader"><nav class="book-nav" aria-label="Rozdziały"><a href="../index.html">Spis wszystkich wykładów</a><h2>Materiały uzupełniające</h2><ul class="chapters"><li><a href="README.html">Wprowadzenie</a></li><li><a href="04-listy-i-funkcje.html" aria-current="page">Listy, rekurencja i funkcje wyższego rzędu</a></li><li><a href="06-narzedzia-i-mechanizmy.html">Narzędzia i mechanizmy Haskella — co to jest?</a></li></ul></nav><article class="paper"><p class="eyebrow">Materiały uzupełniające</p><h1>4. Listy, rekurencja i funkcje wyższego rzędu</h1><p>Ten rozdział uzupełnia pierwszy wykład o praktyczne podstawy przetwarzania danych.</p>
+<h2>Budowanie list</h2>
+<pre><code>[]               -- pusta lista
+[1,2,3]          -- lista trzech liczb
+1 : [2,3]        -- [1,2,3]
+[1,2] ++ [3,4]   -- [1,2,3,4]
+[1..5]           -- [1,2,3,4,5]
+[2,4..10]        -- [2,4,6,8,10]</code></pre>
+<p><code>(:)</code> dodaje jeden element na początek listy. <code>(++)</code> skleja dwie listy. Dlatego <code>1 ++ [2,3]</code> jest błędem: lewa strona też musi być listą.</p>
+<p>Lista <code>[1,2,3]</code> ma strukturę <code>1 : (2 : (3 : []))</code>. Wzorzec <code>x:xs</code> rozdziela niepustą listę na pierwszy element <code>x</code> i pozostałą listę <code>xs</code>. Nazwy są umowne.</p>
+<h2>Rekurencja</h2>
+<p>Funkcja rekurencyjna korzysta z samej siebie dla mniejszego lub prostszego problemu.</p>
+<pre><code>sumList :: Num a =&gt; [a] -&gt; a
+sumList []     = 0
+sumList (x:xs) = x + sumList xs</code></pre>
+<p>Obliczenie:</p>
+<pre><code>sumList [1,2,3]
+= 1 + sumList [2,3]
+= 1 + (2 + sumList [3])
+= 1 + (2 + (3 + sumList []))
+= 1 + (2 + (3 + 0))
+= 6</code></pre>
+<p>Potrzebne są przypadek bazowy (<code>[]</code>) i krok przybliżający do niego (<code>xs</code>). Ten wzorzec kończy się dla skończonych list. Dla nieskończonej listy sumowanie nie dojdzie do końca.</p>
+<pre><code>lengthList :: [a] -&gt; Int
+lengthList []     = 0
+lengthList (_:xs) = 1 + lengthList xs</code></pre>
+<p>Nie odczytujemy wartości elementów, więc typ <code>a</code> nie potrzebuje ograniczeń.</p>
+<h2>map, filter i foldr</h2>
+<pre><code>map :: (a -&gt; b) -&gt; [a] -&gt; [b]
+filter :: (a -&gt; Bool) -&gt; [a] -&gt; [a]
+foldr :: (a -&gt; b -&gt; b) -&gt; b -&gt; [a] -&gt; b</code></pre>
+<p>To sygnatury istniejących funkcji z biblioteki standardowej — nie trzeba ich samodzielnie deklarować w pliku.</p>
+<pre><code>map (*2) [1,2,3]         -- [2,4,6]
+filter even [1..6]       -- [2,4,6]
+foldr (+) 0 [1,2,3]      -- 6
+foldr (*) 1 [2,3,4]      -- 24</code></pre>
+<ul>
+<li><code>map</code> przekształca każdy element; może zmienić typ elementów.</li>
+<li><code>filter</code> zachowuje elementy spełniające warunek.</li>
+<li><code>foldr</code> zastępuje konstruktory listy operacją i wartością początkową: <code>foldr f z [x,y] = f x (f y z)</code>.</li>
+</ul>
+<p><code>(*2)</code> to sekcja operatora, czyli funkcja mnożąca argument przez 2. Dla odejmowania uważaj: <code>(-2)</code> oznacza liczbę ujemną; funkcję odejmującą 2 zapisz jako <code>\x -&gt; x - 2</code>.</p>
+<h2>Lambdy i domknięcia</h2>
+<p>Lambda to funkcja bez nadawania jej osobnej nazwy:</p>
+<pre><code>\x -&gt; x * x
+\x y -&gt; x + y
+
+map (\x -&gt; x * x) [1,2,3]  -- [1,4,9]</code></pre>
+<p>Funkcja może korzystać z wartości otaczającego zakresu:</p>
+<pre><code>makeAdder :: Int -&gt; (Int -&gt; Int)
+makeAdder n = \x -&gt; n + x
+
+-- (makeAdder 5) 3 = 8</code></pre>
+<p>Zwrócona funkcja zachowuje dostęp do <code>n</code>. Taką funkcję wraz z jej środowiskiem nazywamy domknięciem. To samo można krócej zapisać <code>makeAdder n x = n + x</code>.</p>
+<h2>Składanie funkcji i operator $</h2>
+<pre><code>(f . g) x = f (g x)</code></pre>
+<p>To równanie wyjaśnia działanie istniejącego operatora <code>(.)</code>. Najpierw działa <code>g</code>, potem <code>f</code>.</p>
+<pre><code>sumEvenSquares :: [Int] -&gt; Int
+sumEvenSquares xs = sum (map (\x -&gt; x * x) (filter even xs))
+
+-- alternatywna definicja:
+sumEvenSquares = sum . map (\x -&gt; x * x) . filter even
+-- sumEvenSquares [1,2,3,4] = 20</code></pre>
+<p>W ten sposób powstaje ciąg przekształceń kolekcji: wybierz parzyste, podnieś do kwadratu, zsumuj.</p>
+<p><code>$</code> oznacza aplikację funkcji o bardzo niskim priorytecie. Pomaga ograniczać nawiasy:</p>
+<pre><code>sum $ map (*2) [1,2,3]
+-- to samo co sum (map (*2) [1,2,3])</code></pre>
+<p><code>.</code> tworzy złożoną funkcję, a <code>$</code> przekazuje argument do funkcji. Nie są zamienne.</p>
+<h2>List comprehensions</h2>
+<pre><code>[x * x | x &lt;- [1..5]]              -- [1,4,9,16,25]
+[x * x | x &lt;- [1..5], even x]      -- [4,16]
+[(x,y) | x &lt;- [1,2], y &lt;- [3,4]]   -- [(1,3),(1,4),(2,3),(2,4)]</code></pre>
+<p>Po lewej stronie <code>|</code> opisujesz wynikowy element. Po prawej podajesz generatory (<code>x &lt;- lista</code>) i warunki. W tym zapisie <code>&lt;-</code> pobiera kolejne elementy listy.</p>
+<h2>Przykład z wykładu: sortowanie</h2>
+<pre><code>qsort :: Ord a =&gt; [a] -&gt; [a]
+qsort [] = []
+qsort (x:xs) = qsort smaller ++ [x] ++ qsort larger
+  where
+    smaller = filter (&lt;= x) xs
+    larger  = filter (&gt; x) xs</code></pre>
+<p>Pierwszy element jest punktem podziału. Reszta trafia do dwóch list, które są sortowane rekurencyjnie. Powtórzenia pozostają w wyniku.</p>
+<p>To dydaktyczne sortowanie list: tworzy nowe listy, nie przestawia elementów tablicy w miejscu. Wybór pierwszego elementu może dać czas kwadratowy, np. dla już uporządkowanych danych. Przykład pokazuje składnię i rekurencję, nie stanowi wzorca wydajnego sortowania.</p>
+<h2>Unikaj niepełnych przypadków</h2>
+<p><code>head []</code> i <code>tail []</code> powodują błąd. Można jawnie opisać brak wyniku:</p>
+<pre><code>safeHead :: [a] -&gt; Maybe a
+safeHead []    = Nothing
+safeHead (x:_) = Just x</code></pre>
+<p><code>Maybe a</code> opisuje opcjonalną wartość: <code>Nothing</code> oznacza jej brak, <code>Just x</code> jej obecność. W ten sposób oba przypadki są częścią typu wyniku.</p><footer class="links paper-foot"><a href="README.html">Poprzedni rozdział</a>  <a href="06-narzedzia-i-mechanizmy.html">Następny rozdział</a></footer></article></div></main></body></html>
