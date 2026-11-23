@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="pl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Moduły w praktyce: bezpieczne saldo · Haskell</title>
+<link rel="icon" type="image/svg+xml" href="../../logo.svg">
+<link rel="stylesheet" href="../../study.css?v=479a81850f">
+<script src="../../theme.js" defer></script></head>
+<body><header class="mast"><div class="mast-inner">
+<a href="../../../index.html" class="brand"><img src="../../logo.svg" width="34" height="34" alt=""><span>Haskell / Kurs</span></a>
+<nav class="site-nav" aria-label="Nawigacja główna"><a href="../index.html" aria-current="page">Materiały</a> <a href="../../quizy/index.html">Quizy</a>
+<button id="theme" type="button" hidden></button></nav>
+</div></header><main class="page"><div class="reader"><nav class="book-nav" aria-label="Rozdziały"><a href="../index.html">Spis wszystkich wykładów</a><h2>Typy algebraiczne</h2><ul class="chapters"><li><a href="README.html">Wprowadzenie</a></li><li><a href="01-myslenie-typami.html">Jak zaprojektować typ danych</a></li><li><a href="02-drzewa-i-interfejsy.html">Drzewa, instancje i granice modułów</a></li><li><a href="03-maybe-i-rekordy.html">Maybe, rekordy i brak wyniku</a></li><li><a href="04-klasy-i-instancje.html">Klasy typów: od sygnatury do instancji</a></li><li><a href="05-moduly-w-praktyce.html" aria-current="page">Moduły w praktyce: bezpieczne saldo</a></li><li><a href="06-cwiczenia.html">Ćwiczenia do wykładu 4</a></li></ul></nav><article class="paper"><p class="eyebrow">Wykład 4 · Typy algebraiczne</p><h1>Moduły w praktyce: bezpieczne saldo</h1><h2>Oddziel reguły od implementacji</h2>
+<p>Załóżmy, że na koncie nie może być ujemnego salda, a wpłata ma być dodatnia. Sam typ <code>Int</code> pozwala na dowolną liczbę; regułę chroni <strong>interfejs modułu</strong>, który chowa konstruktor i oferuje tylko bezpieczne operacje.</p>
+<p>Zapisz w pliku <code>Balance.hs</code>:</p>
+<pre><code>module Balance (Balance, empty, amount, deposit, withdraw) where
+
+newtype Balance = Balance Integer
+
+empty :: Balance
+empty = Balance 0
+
+amount :: Balance -&gt; Integer
+amount (Balance n) = n
+
+deposit :: Integer -&gt; Balance -&gt; Maybe Balance
+deposit x (Balance n)
+  | x &gt; 0     = Just (Balance (n + x))
+  | otherwise = Nothing
+
+withdraw :: Integer -&gt; Balance -&gt; Maybe Balance
+withdraw x (Balance n)
+  | 0 &lt; x &amp;&amp; x &lt;= n = Just (Balance (n - x))
+  | otherwise       = Nothing</code></pre>
+<p>Kod z innego modułu może wywołać <code>deposit 30 empty</code>, ale nie może zapisać <code>Balance (-10)</code>. Wewnątrz modułu konstruktor jest dostępny. Nie eksportujemy pola rekordowego pozwalającego aktualizować saldo; <code>amount</code> jest osobnym odczytem.</p>
+<h2>Użycie z innego pliku</h2>
+<p>Zapisz obok jako <code>Main.hs</code>:</p>
+<pre><code>module Main where
+
+import qualified Balance as B
+
+main :: IO ()
+main =
+  case B.deposit 30 B.empty of
+    Nothing -&gt; putStrLn &quot;Wplata odrzucona&quot;
+    Just b  -&gt; do
+      print (B.amount b)
+      case B.withdraw 40 b of
+        Nothing -&gt; putStrLn &quot;Wyplata odrzucona&quot;
+        Just b2 -&gt; print (B.amount b2)</code></pre>
+<p>Uruchom w katalogu zawierającym oba pliki: <code>runghc Main.hs</code>. Zobaczysz <code>30</code> i informację o odrzuconej wypłacie. Zmiana kwoty wypłaty na 10 da na końcu <code>20</code>. Nazwa <code>B.amount</code> jest kwalifikowana: prefiks odróżnia ją od ewentualnej lokalnej funkcji <code>amount</code>.</p>
+<h2>Eksport i import to dwie osobne decyzje</h2>
+<ul>
+<li><code>module Balance (Balance, empty) where</code> eksportuje nazwę typu oraz wartość <code>empty</code>, bez konstruktora.</li>
+<li><code>module Balance (Balance(..), empty) where</code> eksportuje też konstruktor. Dla tego przykładu zniszczyłoby to gwarancję salda nieujemnego.</li>
+<li><code>import Balance (Balance, empty)</code> wybiera, których spośród wyeksportowanych nazw używa klient. Nie pozwala odzyskać ukrytego konstruktora.</li>
+<li><code>import qualified Balance as B</code> zmienia sposób odwoływania się do nazw. Samo <code>qualified</code> niczego nie eksportuje.</li>
+</ul>
+<p>To jest <strong>abstrakcyjny</strong> typ danych: użytkownik korzysta z publicznych operacji. <code>newtype Balance = Balance Integer</code> używa natomiast konstrukcji typu <strong>algebraicznego</strong>. To dwa różne aspekty tego samego przykładu.</p><footer class="links paper-foot"><a href="04-klasy-i-instancje.html">Poprzedni rozdział</a> <a href="../../quizy/index.html?wyklad=4">Quiz z wykładu 4</a> <a href="06-cwiczenia.html">Następny rozdział</a></footer></article></div></main></body></html>

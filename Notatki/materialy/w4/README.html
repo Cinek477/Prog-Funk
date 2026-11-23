@@ -9,8 +9,18 @@
 <a href="../../../index.html" class="brand"><img src="../../logo.svg" width="34" height="34" alt=""><span>Haskell / Kurs</span></a>
 <nav class="site-nav" aria-label="Nawigacja główna"><a href="../index.html" aria-current="page">Materiały</a> <a href="../../quizy/index.html">Quizy</a>
 <button id="theme" type="button" hidden></button></nav>
-</div></header><main class="page"><div class="reader"><nav class="book-nav" aria-label="Rozdziały"><a href="../index.html">Spis wszystkich wykładów</a><h2>Typy algebraiczne</h2><ul class="chapters"><li><a href="README.html" aria-current="page">Wprowadzenie</a></li><li><a href="01-myslenie-typami.html">Jak zaprojektować typ danych</a></li><li><a href="02-drzewa-i-interfejsy.html">Drzewa, instancje i granice modułów</a></li></ul></nav><article class="paper"><p class="eyebrow">Wykład 4 · Typy algebraiczne</p><h1>Wykład 4 — algebraiczne typy danych i klasy typów</h1><p><a href="../index.html#w4">Materiały online</a> · <a href="../../quizy/index.html?wyklad=4">Quiz z wykładu 4</a></p>
+</div></header><main class="page"><div class="reader"><nav class="book-nav" aria-label="Rozdziały"><a href="../index.html">Spis wszystkich wykładów</a><h2>Typy algebraiczne</h2><ul class="chapters"><li><a href="README.html" aria-current="page">Wprowadzenie</a></li><li><a href="01-myslenie-typami.html">Jak zaprojektować typ danych</a></li><li><a href="02-drzewa-i-interfejsy.html">Drzewa, instancje i granice modułów</a></li><li><a href="03-maybe-i-rekordy.html">Maybe, rekordy i brak wyniku</a></li><li><a href="04-klasy-i-instancje.html">Klasy typów: od sygnatury do instancji</a></li><li><a href="05-moduly-w-praktyce.html">Moduły w praktyce: bezpieczne saldo</a></li><li><a href="06-cwiczenia.html">Ćwiczenia do wykładu 4</a></li></ul></nav><article class="paper"><p class="eyebrow">Wykład 4 · Typy algebraiczne</p><h1>Wykład 4 — algebraiczne typy danych i klasy typów</h1><p><a href="../index.html#w4">Materiały online</a> · <a href="../../quizy/index.html?wyklad=4">Quiz z wykładu 4</a></p>
 <p>Opracowanie wykładu Romana Dębskiego, slajdy 3–23. Zacznij od konstruktorów i wzorców, potem przejdź do instancji i modułów.</p>
+<h2>Plan nauki</h2>
+<ol start="1">
+<li><a href="01-myslenie-typami.html">Jak zaprojektować typ danych</a> — wybierz między synonimem, nowym typem a wariantami danych.</li>
+<li><a href="02-drzewa-i-interfejsy.html">Drzewa, instancje i granice modułów</a> — prześledź wstawianie, wyszukiwanie i kolejność przejścia po drzewie.</li>
+<li><a href="03-maybe-i-rekordy.html">Maybe i rekordy</a> — obsłuż brak wyniku, odczyt pola i aktualizację bez mutacji.</li>
+<li><a href="04-klasy-i-instancje.html">Klasy typów i instancje</a> — napisz spójne <code>Eq</code> i <code>Ord</code> oraz odczytaj ograniczenia typów.</li>
+<li><a href="05-moduly-w-praktyce.html">Moduły w praktyce</a> — przejdź przez przykład z dwoma plikami Haskella.</li>
+<li><a href="06-cwiczenia.html">Ćwiczenia</a> — rozwiąż 13 zadań, a potem odsłoń odpowiedzi.</li>
+</ol>
+<p>W quizie jest 100 pytań z tego wykładu. Aby przejść całą pulę w jednej rundzie, wybierz „Wykład 4”, „Wszystkie z zestawu” i „Wszystkie, także pytania pojęciowe”. Krótsza runda nie oznacza, że pozostałych pytań nie ma.</p>
 <h2>1. <code>type</code>, <code>newtype</code> i <code>data</code> (slajdy 3–8)</h2>
 <div class="table-wrap"><table><thead><tr><th scope="col">Deklaracja</th><th scope="col">Co tworzy?</th><th scope="col">Kiedy użyć?</th></tr></thead><tbody>
 <tr><td><code>type Polar = (Double, Double)</code></td><td>synonim istniejącego typu</td><td>Chcesz nazwać znaczenie pary, ale akceptujesz, że kompilator nie odróżni jej od innych par typu <code>(Double, Double)</code>.</td></tr>

@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="pl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maybe, rekordy i brak wyniku · Haskell</title>
+<link rel="icon" type="image/svg+xml" href="../../logo.svg">
+<link rel="stylesheet" href="../../study.css?v=479a81850f">
+<script src="../../theme.js" defer></script></head>
+<body><header class="mast"><div class="mast-inner">
+<a href="../../../index.html" class="brand"><img src="../../logo.svg" width="34" height="34" alt=""><span>Haskell / Kurs</span></a>
+<nav class="site-nav" aria-label="Nawigacja główna"><a href="../index.html" aria-current="page">Materiały</a> <a href="../../quizy/index.html">Quizy</a>
+<button id="theme" type="button" hidden></button></nav>
+</div></header><main class="page"><div class="reader"><nav class="book-nav" aria-label="Rozdziały"><a href="../index.html">Spis wszystkich wykładów</a><h2>Typy algebraiczne</h2><ul class="chapters"><li><a href="README.html">Wprowadzenie</a></li><li><a href="01-myslenie-typami.html">Jak zaprojektować typ danych</a></li><li><a href="02-drzewa-i-interfejsy.html">Drzewa, instancje i granice modułów</a></li><li><a href="03-maybe-i-rekordy.html" aria-current="page">Maybe, rekordy i brak wyniku</a></li><li><a href="04-klasy-i-instancje.html">Klasy typów: od sygnatury do instancji</a></li><li><a href="05-moduly-w-praktyce.html">Moduły w praktyce: bezpieczne saldo</a></li><li><a href="06-cwiczenia.html">Ćwiczenia do wykładu 4</a></li></ul></nav><article class="paper"><p class="eyebrow">Wykład 4 · Typy algebraiczne</p><h1>Maybe, rekordy i brak wyniku</h1><h2>Najpierw ustal, co może pójść nie tak</h2>
+<p>Funkcja szukająca użytkownika może trafić na znany identyfikator albo nie znaleźć go w danych. Jeżeli nie ma użytkownika, nie istnieje też miasto do odczytania. Zamiast wymyślać wartości zastępcze, modelujemy brak przez <code>Maybe</code>.</p>
+<pre><code>data User = User { userName :: String, city :: Maybe String }
+  deriving (Show, Eq)
+
+users :: [(Int, User)]
+users = [(1, User &quot;Ada&quot; (Just &quot;Krakow&quot;)), (2, User &quot;Ola&quot; Nothing)]
+
+findCity :: Int -&gt; Maybe String
+findCity key = case lookup key users of
+  Nothing -&gt; Nothing
+  Just u  -&gt; city u
+
+moveTo :: String -&gt; User -&gt; User
+moveTo place u = u { city = Just place }</code></pre>
+<div class="table-wrap"><table><thead><tr><th scope="col">Wyrażenie</th><th scope="col">Wynik</th><th scope="col">Dlaczego?</th></tr></thead><tbody>
+<tr><td><code>lookup 1 users</code></td><td><code>Just (User &quot;Ada&quot; …)</code></td><td>Użytkownik istnieje.</td></tr>
+<tr><td><code>findCity 1</code></td><td><code>Just &quot;Krakow&quot;</code></td><td>Po wyszukaniu odczytujemy miasto.</td></tr>
+<tr><td><code>findCity 2</code></td><td><code>Nothing</code></td><td>Użytkownik istnieje, ale nie ma zapisanego miasta.</td></tr>
+<tr><td><code>findCity 9</code></td><td><code>Nothing</code></td><td>Nie ma użytkownika o tym identyfikatorze.</td></tr>
+</tbody></table></div>
+<p><code>lookup</code> z Prelude przegląda listę par i zwraca <strong>pierwszą</strong> pasującą wartość. Tutaj <code>findCity</code> celowo sprowadza dwa różne przypadki do tego samego wyniku. Jeżeli musisz rozróżnić brak użytkownika od braku miasta, użyj odrębnych konstruktorów, np. <code>data CityResult = NoUser | NoCity | FoundCity String</code>.</p>
+<h2>Jak czytać selektor i aktualizację</h2>
+<p><code>city :: User -&gt; Maybe String</code> to funkcja wybierająca pole, więc <code>city u</code> jest zwykłą aplikacją. W zapisie <code>u { city = Just place }</code> tworzysz nową wersję użytkownika; poprzednia wartość <code>u</code> się nie zmienia.</p>
+<p>Jeżeli nie każdy wariant posiada pole, selektor może być częściowy:</p>
+<pre><code>data Account = Guest | Member { email :: String }
+
+safeEmail :: Account -&gt; Maybe String
+safeEmail Guest      = Nothing
+safeEmail (Member e) = Just e</code></pre>
+<p><code>email Guest</code> ma poprawny typ, ale zgłasza błąd podczas obliczania wyniku. <code>safeEmail Guest</code> daje <code>Nothing</code>. To dobry przykład różnicy między błędem typu a błędem wykonania.</p>
+<h2>Just Nothing nie oznacza tego samego co Nothing</h2>
+<p>Przy typie <code>Maybe (Maybe String)</code> odczytujesz konstruktory od zewnątrz do środka. <code>Nothing</code> oznacza brak wyniku pierwszego etapu, <code>Just Nothing</code> — że pierwszy etap się udał, lecz drugi nie dał wartości. <code>Just (Just &quot;Krakow&quot;)</code> oznacza sukces obu.</p><footer class="links paper-foot"><a href="02-drzewa-i-interfejsy.html">Poprzedni rozdział</a> <a href="../../quizy/index.html?wyklad=4">Quiz z wykładu 4</a> <a href="04-klasy-i-instancje.html">Następny rozdział</a></footer></article></div></main></body></html>

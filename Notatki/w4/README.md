@@ -4,6 +4,17 @@
 
 Opracowanie wykładu Romana Dębskiego, slajdy 3–23. Zacznij od konstruktorów i wzorców, potem przejdź do instancji i modułów.
 
+## Plan nauki
+
+1. [Jak zaprojektować typ danych](01-myslenie-typami.md) — wybierz między synonimem, nowym typem a wariantami danych.
+2. [Drzewa, instancje i granice modułów](02-drzewa-i-interfejsy.md) — prześledź wstawianie, wyszukiwanie i kolejność przejścia po drzewie.
+3. [Maybe i rekordy](03-maybe-i-rekordy.md) — obsłuż brak wyniku, odczyt pola i aktualizację bez mutacji.
+4. [Klasy typów i instancje](04-klasy-i-instancje.md) — napisz spójne `Eq` i `Ord` oraz odczytaj ograniczenia typów.
+5. [Moduły w praktyce](05-moduly-w-praktyce.md) — przejdź przez przykład z dwoma plikami Haskella.
+6. [Ćwiczenia](06-cwiczenia.md) — rozwiąż 13 zadań, a potem odsłoń odpowiedzi.
+
+W quizie jest 100 pytań z tego wykładu. Aby przejść całą pulę w jednej rundzie, wybierz „Wykład 4”, „Wszystkie z zestawu” i „Wszystkie, także pytania pojęciowe”. Krótsza runda nie oznacza, że pozostałych pytań nie ma.
+
 ## 1. `type`, `newtype` i `data` (slajdy 3–8)
 
 | Deklaracja | Co tworzy? | Kiedy użyć? |
