@@ -2,7 +2,7 @@
 
 Otwórz [index.html](index.html) w przeglądarce (np. dwuklikiem w Eksploratorze).
 
-- 382 zadania: 77 do wykładu 1, 164 do wykładu 2, 96 do wykładu 3 i 45 do wykładu 4. W tym 75 z uzupełnianiem luk.
+- 437 zadań: 77 do wykładu 1, 164 do wykładu 2, 96 do wykładu 3 i 100 do wykładu 4. W tym 89 z uzupełnianiem luk.
 - Osobne zestawy wykładów lub zestaw mieszany; 10, 20, 30, 50, 100 albo wszystkie dostępne pytania.
 - Filtr: zadania z kodem (domyślnie), tylko uzupełnianie kodu lub pełna baza z pytaniami pojęciowymi.
 - Tryb nauki: po sprawdzeniu pytania pojawiają się rozwiązanie i wyjaśnienie.
@@ -34,3 +34,5 @@ Nie musisz przechodzić całej bazy jednym ciągiem. Po błędzie przeczytaj wyj
 Wybierz „Wykład 3” w polu Zestaw. Dodano 96 pytań: 55 obliczeń sprawdzonych w GHCi, 15 pytań o typy, 20 zadań z uzupełnianiem kodu i 6 dodatkowych pytań o pułapki. Tematy obejmują lambdy, funkcje jako argumenty, złożenie, operatory aplikacji, map/filter, foldy, zipWith/concat oraz pipeline. Osobne filtry „Foldy” i „Pipeline i składanie” pomagają skupić się na nowym materiale.
 
 [Materiały do wykładu 3](../w3/README.md).
+
+Wykład 4 ma 100 pytań, w tym 24 z uzupełnianiem kodu. Możesz zawęzić rundę do konstruktorów i Maybe, drzew, klas albo modułów.

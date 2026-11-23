@@ -36,14 +36,16 @@ def shell(out, title, body, active):
         link(out, target, label, ' aria-current="page"' if active == label else '')
         for target, label in [(material / 'index.html', 'Materiały'), (notes / 'quizy' / 'index.html', 'Quizy')]
     )
+    logo = href(out, notes / 'logo.svg')
     return f'''<!doctype html>
 <html lang="pl"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{escape(title)} · Haskell</title>
+<link rel="icon" type="image/svg+xml" href="{logo}">
 <link rel="stylesheet" href="{href(out, notes / 'study.css')}">
 <script src="{href(out, notes / 'theme.js')}" defer></script></head>
 <body><header class="mast"><div class="mast-inner">
-{link(out, root / 'index.html', 'Haskell / Kurs', ' class="brand"')}
+<a href="{href(out, root / 'index.html')}" class="brand"><img src="{logo}" width="38" height="38" alt="">Haskell / Kurs</a>
 <nav class="site-nav" aria-label="Nawigacja główna">{nav}
 <button id="theme" type="button" hidden></button></nav>
 </div></header><main class="page">{body}</main></body></html>

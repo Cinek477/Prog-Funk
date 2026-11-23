@@ -16,7 +16,7 @@ Materiały do nauki podstaw Haskella oraz interaktywne quizy do wykładów 1–4
 
 Po pobraniu repozytorium otwórz `Notatki/quizy/index.html` w przeglądarce. Quiz działa lokalnie bez internetu; nie wymaga instalacji zależności. Podgląd pliku HTML w serwisie GitHub pokazuje kod źródłowy, więc plik należy najpierw pobrać.
 
-Baza zawiera 382 pytania, tryb nauki i kartkówki, filtrowanie tematów oraz powtórki błędnych odpowiedzi.
+Baza zawiera 437 pytań, tryb nauki i kartkówki, filtrowanie tematów oraz powtórki błędnych odpowiedzi.
 
 ## Przykłady Haskella
 
