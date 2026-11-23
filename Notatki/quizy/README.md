@@ -1,8 +1,8 @@
-﻿# Quizy interaktywne
+# Quizy interaktywne
 
 Otwórz [index.html](index.html) w przeglądarce (np. dwuklikiem w Eksploratorze).
 
-- 337 zadań: 77 do wykładu 1, 164 do wykładu 2 i 96 do wykładu 3. Łącznie 319 zadań z kodem, w tym 65 z uzupełnianiem luk.
+- 382 zadania: 77 do wykładu 1, 164 do wykładu 2, 96 do wykładu 3 i 45 do wykładu 4. W tym 75 z uzupełnianiem luk.
 - Osobne zestawy wykładów lub zestaw mieszany; 10, 20, 30, 50, 100 albo wszystkie dostępne pytania.
 - Filtr: zadania z kodem (domyślnie), tylko uzupełnianie kodu lub pełna baza z pytaniami pojęciowymi.
 - Tryb nauki: po sprawdzeniu pytania pojawiają się rozwiązanie i wyjaśnienie.

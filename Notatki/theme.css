@@ -1,0 +1,27 @@
+.site-nav { display:flex; flex-wrap:wrap; align-items:center; gap: .75rem; }
+.site-nav a { white-space:nowrap; }
+.site-nav button { font-size:.875rem; white-space:nowrap; }
+:root[data-theme="dark"] {
+  color-scheme: dark; background:#141a1d; color:#e4eeec;
+  --ink:#e4eeec; --teal:#9cddcc; --line:#3a4b4d; --muted:#aec1bd;
+}
+[data-theme="dark"] header, [data-theme="dark"] #setup, [data-theme="dark"] .question,
+[data-theme="dark"] #result { border-color:var(--line); }
+[data-theme="dark"] #setup, [data-theme="dark"] .question, [data-theme="dark"] #result { background:#20292c; }
+[data-theme="dark"] button, [data-theme="dark"] select, [data-theme="dark"] .quick button {
+  background:#293639; border-color:#586f70; color:var(--ink);
+}
+[data-theme="dark"] button:hover, [data-theme="dark"] .option:hover { background:#34494a; }
+[data-theme="dark"] button.primary { color:#102622; background:#9cddcc; border-color:#9cddcc; }
+[data-theme="dark"] button.primary:hover { background:#b8ece0; }
+[data-theme="dark"] .settings label, [data-theme="dark"] .option::before { color:var(--muted); }
+[data-theme="dark"] pre { color:#d5eee8; background:#172125; border-color:#425758; }
+[data-theme="dark"] #code { border-left-color:#6fb39f; }
+[data-theme="dark"] .progress { background:#3a4b4d; }
+[data-theme="dark"] .option { border-color:#526666; }
+[data-theme="dark"] .option:has(input:checked) { background:#283f3a; border-color:#9cddcc; }
+[data-theme="dark"] .option.right, [data-theme="dark"] .feedback { background:#213b2e; border-color:#8ad6a1; }
+[data-theme="dark"] .option.wrong, [data-theme="dark"] .feedback.bad { background:#412b2a; border-color:#f3a497; }
+[data-theme="dark"] .option.right::after { color:#a5e8b6; }
+[data-theme="dark"] .option.wrong::after { color:#ffb6a8; }
+@media (max-width: 600px) { header { flex-wrap:wrap; } }
